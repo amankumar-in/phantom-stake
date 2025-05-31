@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { TextAnimate } from "@/components/ui/text-animate";
 import { PulsatingButton } from "@/components/ui/pulsating-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
@@ -321,22 +322,83 @@ export default function WalletPage() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]"></div>
       
       <div className="relative container mx-auto px-4 sm:px-6">
-        {/* Header */}
+        {/* Navigation Breadcrumbs */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <nav className="flex items-center space-x-2 text-sm text-gray-400">
+            <Link 
+              href="/dashboard" 
+              className="flex items-center space-x-1 hover:text-purple-400 transition-colors"
+            >
+              <span>🏠</span>
+              <span>Dashboard</span>
+            </Link>
+            <span>›</span>
+            <span className="text-white font-semibold">Wallet Management</span>
+          </nav>
+        </motion.div>
+
+        {/* Header with Back Button */}
         <motion.div
           className="mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <TextAnimate 
-            animation="blurInUp"
-            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent mb-4"
-          >
-            Wallet Management
-          </TextAnimate>
-          <p className="text-gray-400 text-lg">
-            Manage your Principal and Income wallets
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-4">
+              <Link href="/dashboard">
+                <motion.button
+                  className="p-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg text-gray-400 hover:text-white transition-colors border border-gray-600/30"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </motion.button>
+              </Link>
+              <div>
+                <TextAnimate 
+                  animation="blurInUp"
+                  className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent"
+                >
+                  Wallet Management
+                </TextAnimate>
+                <p className="text-gray-400 text-lg">
+                  Manage your Principal and Income wallets
+                </p>
+              </div>
+            </div>
+            
+            {/* Quick Actions */}
+            <div className="hidden md:flex items-center space-x-3">
+              <Link href="/dashboard">
+                <ShimmerButton
+                  shimmerColor="#a855f7"
+                  background="rgba(139, 69, 219, 0.1)"
+                  borderRadius="8px"
+                  className="text-sm px-4 py-2 border-purple-500/30"
+                >
+                  📊 Dashboard
+                </ShimmerButton>
+              </Link>
+              <Link href="/dashboard/teams">
+                <ShimmerButton
+                  shimmerColor="#3b82f6"
+                  background="rgba(59, 130, 246, 0.1)"
+                  borderRadius="8px"
+                  className="text-sm px-4 py-2 border-blue-500/30"
+                >
+                  👥 Teams
+                </ShimmerButton>
+              </Link>
+            </div>
+          </div>
         </motion.div>
 
         {/* Error Message */}
