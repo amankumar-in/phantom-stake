@@ -299,7 +299,7 @@ export default function FAQ() {
         >
           <p className="text-gray-400">
             Showing {filteredFAQs.length} of {faqData.length} questions
-            {searchTerm && <span> for "{searchTerm}"</span>}
+            {searchTerm && <span> for &quot;{searchTerm}&quot;</span>}
             {selectedCategory !== "All" && <span> in {selectedCategory}</span>}
           </p>
         </motion.div>

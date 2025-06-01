@@ -128,7 +128,7 @@ export default function HowItWorks() {
         >
           <h2 className="text-3xl font-bold text-white mb-8 text-center">💼 How We Generate Your Returns</h2>
           <p className="text-gray-400 text-center mb-8 text-lg">
-            You might wonder: "How can Phantom Stake afford to pay 0.75% daily returns?" 
+            You might wonder: &quot;How can Phantom Stake afford to pay 0.75% daily returns?&quot; 
             <br />Here&apos;s exactly how our professional trading team makes money in the crypto markets:
           </p>
 

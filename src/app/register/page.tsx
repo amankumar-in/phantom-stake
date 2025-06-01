@@ -89,6 +89,7 @@ export default function Register() {
     }
     
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...registrationData } = formData;
       await register(registrationData);
       router.push('/dashboard');
