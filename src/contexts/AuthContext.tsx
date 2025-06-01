@@ -120,7 +120,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const user = JSON.parse(userData);
         dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
-      } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to parse stored user data' });
@@ -167,6 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       console.error('❌ API Call Error:', error);
       if (error instanceof TypeError && error.message.includes('fetch')) {

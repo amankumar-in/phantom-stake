@@ -203,7 +203,7 @@ export default function WalletPage() {
                 
                 {/* Today's ROI */}
                 <div className="border-t border-blue-400/30 pt-4">
-                  <div className="text-blue-200 text-sm">Today's ROI</div>
+                  <div className="text-blue-200 text-sm">Today&apos;s ROI</div>
                   <div className="text-xl font-bold text-green-400">
                     +${walletData?.income?.todayROI.toFixed(2)} USDT
                   </div>
