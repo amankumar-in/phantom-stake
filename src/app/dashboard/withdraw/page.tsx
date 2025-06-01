@@ -24,7 +24,7 @@ interface WithdrawalRequest {
 }
 
 export default function WithdrawPage() {
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [incomeBalance, setIncomeBalance] = useState(0);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
@@ -36,11 +36,6 @@ export default function WithdrawPage() {
   const [withdrawSuccess, setWithdrawSuccess] = useState(false);
   const [withdrawalHistory, setWithdrawalHistory] = useState<WithdrawalRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<WithdrawalRequest | null>(null);
-
-  useEffect(() => {
-    fetchWalletData();
-    fetchWithdrawalHistory();
-  }, []);
 
   const fetchWalletData = async () => {
     try {
@@ -73,6 +68,11 @@ export default function WithdrawPage() {
       console.error('Error fetching withdrawal history:', error);
     }
   };
+
+  useEffect(() => {
+    fetchWalletData();
+    fetchWithdrawalHistory();
+  }, [fetchWalletData, fetchWithdrawalHistory]);
 
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);

@@ -149,7 +149,7 @@ export default function Dashboard() {
       return;
     }
     fetchDashboardData();
-  }, [user, token, router]);
+  }, [user, token, router, fetchDashboardData]);
 
   if (loading) {
     return (

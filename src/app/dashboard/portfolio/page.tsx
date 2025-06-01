@@ -42,7 +42,7 @@ interface InvestData {
 }
 
 export default function InvestPage() {
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const [investData, setInvestData] = useState<InvestData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -65,7 +65,7 @@ export default function InvestPage() {
 
   useEffect(() => {
     fetchInvestData();
-  }, []);
+  }, [fetchInvestData]);
 
   if (loading) {
     return (

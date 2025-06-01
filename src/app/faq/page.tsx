@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { TextAnimate } from "@/components/ui/text-animate";
-import { PulsatingButton } from "@/components/ui/pulsating-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { motion } from "framer-motion";
 
@@ -29,14 +28,14 @@ const faqData: FAQItem[] = [
   },
   {
     id: "minimum-investment",
-    question: "What's the minimum investment?",
+    question: "What&apos;s the minimum investment?",
     answer: "The minimum investment is $50 USDT. This makes our platform accessible to beginners while still allowing for significant growth potential.",
     category: "Getting Started"
   },
   {
     id: "when-launch",
     question: "When does Program I launch?",
-    answer: "Program I (Founders' Program) launches on August 1, 2025 and runs until September 30, 2026 (426 days total). This is an exclusive early access program with special founder benefits.",
+    answer: "Program I (Founders&apos; Program) launches on August 1, 2025 and runs until September 30, 2026 (426 days total). This is an exclusive early access program with special founder benefits.",
     category: "Getting Started"
   },
 
@@ -56,7 +55,7 @@ const faqData: FAQItem[] = [
   {
     id: "principal-safety",
     question: "Is my principal investment safe?",
-    answer: "Yes, your principal is 100% protected. It's never used for trading and remains in your Principal Wallet. We generate returns from our separate $50M trading fund through arbitrage and DeFi strategies. Your principal can be withdrawn after the 6-month lock period.",
+    answer: "Yes, your principal is 100% protected. It&apos;s never used for trading and remains in your Principal Wallet. We generate returns from our separate $50M trading fund through arbitrage and DeFi strategies. Your principal can be withdrawn after the 6-month lock period.",
     category: "Investment & Returns"
   },
   {
@@ -70,7 +69,7 @@ const faqData: FAQItem[] = [
   {
     id: "withdraw-income",
     question: "When can I withdraw my income?",
-    answer: "You can withdraw from your Income Wallet anytime with a minimum of $1,000 USDT. Withdrawals are processed within 24 hours. There's a 5% withdrawal fee plus 5 USDT gas fee.",
+    answer: "You can withdraw from your Income Wallet anytime with a minimum of $1,000 USDT. Withdrawals are processed within 24 hours. There&apos;s a 5% withdrawal fee plus 5 USDT gas fee.",
     category: "Withdrawals & Fees"
   },
   {
@@ -82,13 +81,13 @@ const faqData: FAQItem[] = [
   {
     id: "withdrawal-fees",
     question: "What are the withdrawal fees?",
-    answer: "There's a 5% withdrawal fee on all withdrawals (both income and principal) plus a 5 USDT gas fee for Ethereum network transactions. These fees help maintain platform operations and security.",
+    answer: "There&apos;s a 5% withdrawal fee on all withdrawals (both income and principal) plus a 5 USDT gas fee for Ethereum network transactions. These fees help maintain platform operations and security.",
     category: "Withdrawals & Fees"
   },
   {
     id: "withdrawal-limits",
     question: "Are there withdrawal limits?",
-    answer: "Minimum withdrawal is $1,000 USDT from your Income Wallet. There's no maximum limit. Principal withdrawals require the 6-month lock period to be completed first.",
+    answer: "Minimum withdrawal is $1,000 USDT from your Income Wallet. There&apos;s no maximum limit. Principal withdrawals require the 6-month lock period to be completed first.",
     category: "Withdrawals & Fees"
   },
 
@@ -96,7 +95,7 @@ const faqData: FAQItem[] = [
   {
     id: "referral-program",
     question: "How does the referral program work?",
-    answer: "Earn 10% of any investment made through your referral link, paid instantly to your Income Wallet. For example, if your friend invests $2,000, you receive $200 immediately. There's no limit to referral earnings.",
+    answer: "Earn 10% of any investment made through your referral link, paid instantly to your Income Wallet. For example, if your friend invests $2,000, you receive $200 immediately. There&apos;s no limit to referral earnings.",
     category: "Team Building & Bonuses"
   },
   {
@@ -122,7 +121,7 @@ const faqData: FAQItem[] = [
   {
     id: "which-blockchain",
     question: "Which blockchain do you use?",
-    answer: "We operate on Ethereum mainnet using USDT (ERC-20) tokens. You'll need an Ethereum-compatible wallet like MetaMask and some ETH for gas fees when making transactions.",
+    answer: "We operate on Ethereum mainnet using USDT (ERC-20) tokens. You&apos;ll need an Ethereum-compatible wallet like MetaMask and some ETH for gas fees when making transactions.",
     category: "Technical & Security"
   },
   {
@@ -140,7 +139,7 @@ const faqData: FAQItem[] = [
   {
     id: "kyc-required",
     question: "Do I need to complete KYC?",
-    answer: "Basic KYC may be required for larger investments or withdrawals to comply with regulations. We'll notify you if KYC is needed for your account level.",
+    answer: "Basic KYC may be required for larger investments or withdrawals to comply with regulations. We&apos;ll notify you if KYC is needed for your account level.",
     category: "Technical & Security"
   },
 
@@ -180,7 +179,7 @@ const faqData: FAQItem[] = [
   {
     id: "regulatory-compliance",
     question: "Are you regulated?",
-    answer: "We operate in compliance with applicable regulations and continuously monitor the regulatory landscape. We're committed to maintaining full transparency and legal compliance.",
+    answer: "We operate in compliance with applicable regulations and continuously monitor the regulatory landscape. We&apos;re committed to maintaining full transparency and legal compliance.",
     category: "Risk & Compliance"
   },
   {
@@ -243,7 +242,7 @@ export default function FAQ() {
           </TextAnimate>
           <p className="text-gray-400 text-lg max-w-3xl mx-auto">
             Everything you need to know about Phantom Stake, returns, security, and getting started.
-            <br />Can't find your question? <span className="text-green-400 font-semibold">Contact our support team.</span>
+            <br />Can&apos;t find your question? <span className="text-green-400 font-semibold">Contact our support team.</span>
           </p>
         </motion.div>
 

@@ -245,7 +245,7 @@ export default function WalletPage() {
                         </span>
                       </div>
                       
-                      {walletData?.income?.balance >= 50 ? (
+                      {(walletData?.income?.balance ?? 0) >= 50 ? (
                         <div className="bg-blue-900/50 rounded p-2">
                           <div className="text-blue-300 text-xs">
                             {7 - (walletData?.income?.daysWithoutWithdrawal || 0) > 0 ? (
@@ -415,7 +415,7 @@ export default function WalletPage() {
                   <ul className="text-blue-200 text-sm space-y-1">
                     <li>• Minimum deposit: 500 USDT</li>
                     <li>• Your deposit will be locked for 6 months</li>
-                    <li>• You'll earn 0.75% daily ROI (0.85% if qualified)</li>
+                    <li>• You&apos;ll earn 0.75% daily ROI (0.85% if qualified)</li>
                     <li>• ROI is paid to your Income Wallet daily</li>
                   </ul>
                 </div>

@@ -32,7 +32,7 @@ interface PoolData {
 }
 
 export default function PoolsPage() {
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const [poolData, setPoolData] = useState<PoolData | null>(null);
   const [loading, setLoading] = useState(true);
 

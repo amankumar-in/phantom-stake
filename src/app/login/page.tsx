@@ -172,7 +172,7 @@ export default function Login() {
           {/* Sign Up Link */}
           <div className="text-center">
             <p className="text-gray-400 text-sm mb-4">
-              Don't have an account?
+              Don&apos;t have an account?
             </p>
             <Link href="/register">
               <ShimmerButton

@@ -52,7 +52,7 @@ export function Header() {
               { name: "Phase II", status: "future", date: "Oct 2026" },
               { name: "Phase III", status: "future", date: "Oct 2027" },
               { name: "Phase IV", status: "future", date: "Oct 2028" },
-            ].map((phase, index) => (
+            ].map((phase) => (
               <motion.div
                 key={phase.name}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${

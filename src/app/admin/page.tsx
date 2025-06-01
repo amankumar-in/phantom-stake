@@ -23,7 +23,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   const fetchStats = async () => {
     try {
