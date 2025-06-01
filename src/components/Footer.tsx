@@ -61,14 +61,16 @@ export function Footer() {
               <p className="text-purple-300 mb-2">{currentPhase.date}</p>
               <p className="text-gray-300 text-sm">{currentPhase.roi}</p>
               <div className="mt-4">
-                <ShimmerButton
-                  shimmerColor="#ec4899"
-                  background="rgba(236, 72, 153, 0.1)"
-                  borderRadius="8px"
-                  className="text-sm px-6 py-2 border-pink-500/30"
-                >
-                  Get Ready for Launch
-                </ShimmerButton>
+                <Link href="/register">
+                  <ShimmerButton
+                    shimmerColor="#ec4899"
+                    background="rgba(236, 72, 153, 0.1)"
+                    borderRadius="8px"
+                    className="text-sm px-6 py-2 border-pink-500/30"
+                  >
+                    Get Ready for Launch
+                  </ShimmerButton>
+                </Link>
               </div>
             </div>
           </motion.div>
@@ -96,7 +98,7 @@ export function Footer() {
         </div>
 
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand Column */}
           <div className="md:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
@@ -112,14 +114,13 @@ export function Footer() {
             </p>
             <div className="flex space-x-3">
               {[
-                { name: "twitter", icon: "𝕏", url: "#twitter" },
-                { name: "telegram", icon: "✈️", url: "#telegram" },
-                { name: "discord", icon: "🎮", url: "#discord" }
+                { name: "twitter", icon: "𝕏" },
+                { name: "telegram", icon: "✈️" },
+                { name: "discord", icon: "🎮" }
               ].map((social) => (
                 <motion.a
                   key={social.name}
-                  href={social.url}
-                  className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-purple-600 transition-colors duration-200"
+                  className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-purple-600 transition-colors duration-200 cursor-default"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   title={social.name.charAt(0).toUpperCase() + social.name.slice(1)}
@@ -130,67 +131,32 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
+          {/* Quick Links - centered on md screens and up */}
+          <div className="md:text-center">
             <h4 className="font-semibold text-white mb-4">Platform</h4>
             <div className="space-y-2">
-              {["Dashboard", "Calculator", "Programs", "Referrals"].map((link) => (
-                <Link
-                  key={link}
-                  href={`/${link.toLowerCase()}`}
-                  className="block text-gray-400 hover:text-white transition-colors duration-200 text-sm"
-                >
-                  {link}
-                </Link>
-              ))}
+              <Link href="/dashboard" className="block text-gray-400 hover:text-white transition-colors duration-200 text-sm">Dashboard</Link>
+              <Link href="/calculator" className="block text-gray-400 hover:text-white transition-colors duration-200 text-sm">Calculator</Link>
+              <Link href="/programs" className="block text-gray-400 hover:text-white transition-colors duration-200 text-sm">Programs</Link>
+              <Link href="/dashboard/referrals" className="block text-gray-400 hover:text-white transition-colors duration-200 text-sm">Referrals</Link>
             </div>
           </div>
 
-          {/* Support */}
-          <div>
+          {/* Support - right-aligned on md screens and up */}
+          <div className="md:text-right">
             <h4 className="font-semibold text-white mb-4">Support</h4>
             <div className="space-y-2">
-              {["How It Works", "FAQ", "Terms", "Privacy"].map((link) => (
-                <Link
-                  key={link}
-                  href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="block text-gray-400 hover:text-white transition-colors duration-200 text-sm"
-                >
-                  {link}
-                </Link>
-              ))}
+              <Link href="/how-it-works" className="block text-gray-400 hover:text-white transition-colors duration-200 text-sm">How It Works</Link>
+              <Link href="/faq" className="block text-gray-400 hover:text-white transition-colors duration-200 text-sm">FAQ</Link>
               <div className="pt-3 border-t border-gray-800 mt-4">
                 <p className="text-gray-400 text-xs mb-2">Contact Us:</p>
                 <a 
-                  href="mailto:support@phantomwallet.com" 
+                  href="mailto:support@phantomstake.com"
                   className="text-purple-400 hover:text-purple-300 transition-colors text-sm"
                 >
-                  support@phantomwallet.com
+                  support@phantomstake.com
                 </a>
               </div>
-            </div>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4 className="font-semibold text-white mb-4">Stay Updated</h4>
-            <p className="text-gray-400 text-sm mb-4">
-              Get notified about Program I launch and updates.
-            </p>
-            <div className="space-y-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors duration-200"
-              />
-              <ShimmerButton
-                shimmerColor="#a855f7"
-                background="rgba(139, 69, 219, 0.1)"
-                borderRadius="8px"
-                className="w-full text-sm py-2 border-purple-500/30"
-              >
-                Subscribe
-              </ShimmerButton>
             </div>
           </div>
         </div>

@@ -176,13 +176,6 @@ export function Header() {
                       >
                         📊 Dashboard
                       </Link>
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        👤 Profile
-                      </Link>
                       <div className="border-t border-gray-700 my-1"></div>
                       <button
                         onClick={handleLogout}
@@ -317,13 +310,6 @@ export function Header() {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     ❓ FAQ
-                  </Link>
-                  <Link
-                    href="/profile"
-                    className="block py-2 text-gray-300 hover:text-white transition-colors duration-200"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    👤 Profile
                   </Link>
 
                   {/* Theme Toggle - Mobile Menu */}
