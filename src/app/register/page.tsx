@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -9,7 +9,8 @@ import { PulsatingButton } from "@/components/ui/pulsating-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function Register() {
+// New component containing the original page logic
+function RegisterPageContent() {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -85,6 +86,10 @@ export default function Register() {
     
     const validationError = validateForm();
     if (validationError) {
+      // Display validation error to user (e.g., using a state variable for UI error message)
+      // For now, just logging it. You might want to set an error state here.
+      console.error("Validation Error:", validationError); 
+      // Example: setErrorState(validationError); // Assuming you have an error state for the form
       return;
     }
     
@@ -94,7 +99,7 @@ export default function Register() {
       await register(registrationData);
       router.push('/dashboard');
     } catch (error) {
-      // Error is handled by the auth context
+      // Error is handled by the auth context, but you might want to log or display a generic message
       console.error('Registration failed:', error);
     }
   };
@@ -254,33 +259,31 @@ export default function Register() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  placeholder="Create a strong password"
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 pr-12"
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white"
                 >
-                  {showPassword ? "👁️" : "🙈"}
+                  {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
-              
-              {/* Password Strength Indicator */}
               {formData.password && (
                 <div className="mt-2">
-                  <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-                    <span>Password Strength</span>
-                    <span className={passwordStrength >= 75 ? "text-green-400" : passwordStrength >= 50 ? "text-yellow-400" : "text-red-400"}>
-                      {getPasswordStrengthText()}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${getPasswordStrengthColor()}`}
+                  <div className="h-2 w-full bg-gray-700 rounded-full">
+                    <div
+                      className={`h-full rounded-full ${getPasswordStrengthColor()} transition-all duration-300`}
                       style={{ width: `${passwordStrength}%` }}
                     ></div>
                   </div>
+                  <p className={`text-xs mt-1 ${
+                    passwordStrength < 50 ? 'text-red-400' : 
+                    passwordStrength < 75 ? 'text-yellow-400' : 'text-green-400'
+                  }`}>
+                    Password Strength: {getPasswordStrengthText()}
+                  </p>
                 </div>
               )}
             </div>
@@ -298,19 +301,19 @@ export default function Register() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  placeholder="Confirm your password"
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 pr-12"
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white"
                 >
-                  {showConfirmPassword ? "👁️" : "🙈"}
+                  {showConfirmPassword ? "Hide" : "Show"}
                 </button>
               </div>
               {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                <p className="text-red-400 text-xs mt-1">Passwords do not match</p>
+                <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
               )}
             </div>
 
@@ -328,78 +331,71 @@ export default function Register() {
                 placeholder="Enter referral code"
                 className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Get 10% bonus on first investment when using a referral code
-              </p>
             </div>
 
             {/* Submit Button */}
-            <PulsatingButton 
-              pulseColor="#10b981"
-              className="w-full bg-gradient-to-r from-green-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg"
-              disabled={loading || formData.password !== formData.confirmPassword}
-            >
-              {loading ? "Creating Account..." : "Create Account"}
-            </PulsatingButton>
+            <div>
+              <PulsatingButton
+                type="submit"
+                pulseColor="#a855f7"
+                disabled={loading}
+                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold text-lg"
+              >
+                {loading ? "Creating Account..." : "Create Account"}
+              </PulsatingButton>
+            </div>
           </form>
 
-          {/* Divider */}
-          <div className="my-6 flex items-center">
-            <div className="flex-1 border-t border-gray-600/30"></div>
-            <span className="px-4 text-gray-400 text-sm">or</span>
-            <div className="flex-1 border-t border-gray-600/30"></div>
-          </div>
-
-          {/* Sign In Link */}
-          <div className="text-center">
-            <p className="text-gray-400 text-sm mb-4">
-              Already have an account?
+          {/* Login Link */}
+          <motion.div 
+            className="text-center mt-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <p className="text-gray-400">
+              Already have an account?{' '}
+              <Link href="/login" className="text-purple-400 hover:text-purple-300 font-semibold underline">
+                Login Here
+              </Link>
             </p>
-            <Link href="/login">
+          </motion.div>
+
+          {/* Return to Home */}
+          <motion.div 
+            className="text-center mt-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          >
+            <Link href="/" passHref>
               <ShimmerButton
-                shimmerColor="#a855f7"
-                background="rgba(139, 69, 219, 0.1)"
-                borderRadius="8px"
-                className="w-full text-purple-400 border-purple-500/30 font-semibold py-3 px-6"
+                shimmerColor="#fff"
+                background="rgba(109, 40, 217, 0.1)"
+                className="px-6 py-2 border-purple-400/50 text-purple-400 text-sm"
               >
-                Sign In
+                ← Back to Home
               </ShimmerButton>
             </Link>
-          </div>
-        </motion.div>
-
-        {/* Terms Notice */}
-        <motion.div
-          className="mt-6 text-center text-xs text-gray-500"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          By creating an account, you agree to our{" "}
-          <Link href="/terms" className="text-purple-400 hover:text-purple-300">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy" className="text-purple-400 hover:text-purple-300">
-            Privacy Policy
-          </Link>
-        </motion.div>
-
-        {/* Back to Home */}
-        <motion.div
-          className="mt-4 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          <Link 
-            href="/" 
-            className="text-purple-400 hover:text-purple-300 transition-colors text-sm"
-          >
-            ← Back to Home
-          </Link>
+          </motion.div>
         </motion.div>
       </motion.div>
     </main>
+  );
+}
+
+// Modified default export to wrap RegisterPageContent with Suspense
+export default function Register() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-purple-300 text-lg">Loading registration page...</p>
+        </div>
+      </div>
+    }>
+      <RegisterPageContent />
+    </Suspense>
   );
 }
