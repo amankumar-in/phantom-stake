@@ -1,9 +1,10 @@
 // Timestamp: 1719522000
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Header } from "@/components/Header";
+// import { Header } from "@/components/Header"; // Header is now in MainLayoutWrapper
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
+import MainLayoutWrapper from "@/components/MainLayoutWrapper"; // Added import
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,10 +23,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <Header />
-          <main className="pt-16">
+          <MainLayoutWrapper>
             {children}
-          </main>
+          </MainLayoutWrapper>
           <Footer />
         </AuthProvider>
       </body>

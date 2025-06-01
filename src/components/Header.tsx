@@ -21,7 +21,7 @@ export function Header() {
 
   return (
     <motion.header 
-      className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-lg border-b border-purple-500/20"
+      className={`fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-lg border-b border-purple-500/20`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -208,7 +208,7 @@ export function Header() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Always rendered now (if md:hidden matches) */}
           <motion.button
             className="md:hidden p-2 text-gray-300 hover:text-white"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -224,7 +224,7 @@ export function Header() {
           </motion.button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - Always rendered if isMenuOpen (parent controls Header visibility) */}
         {isMenuOpen && (
           <motion.div
             className="md:hidden py-4 border-t border-purple-500/20"

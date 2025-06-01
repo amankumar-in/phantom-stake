@@ -5,7 +5,6 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { TextAnimate } from "@/components/ui/text-animate";
 import { PulsatingButton } from "@/components/ui/pulsating-button";
-import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -118,11 +117,16 @@ interface DashboardData {
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { user, token } = useAuth();
+  const [uiLoading, setUiLoading] = useState(true);
+  const { user, token, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const fetchDashboardData = useCallback(async () => {
+    if (!token) {
+      console.error("fetchDashboardData called without a token.");
+      setUiLoading(false);
+      return;
+    }
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard`, {
         headers: {
@@ -140,19 +144,22 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     } finally {
-      setLoading(false);
+      setUiLoading(false);
     }
   }, [token]);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
     if (!user || !token) {
       router.push("/login");
       return;
     }
     fetchDashboardData();
-  }, [user, token, router, fetchDashboardData]);
+  }, [user, token, authLoading, router, fetchDashboardData]);
 
-  if (loading) {
+  if (uiLoading || authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 flex items-center justify-center">
         <div className="text-center">

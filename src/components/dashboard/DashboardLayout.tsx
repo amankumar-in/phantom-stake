@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { BarChart, DollarSign, Wallet, Users, UserPlus, Trophy, CreditCard } from "lucide-react";
+import { BarChart, DollarSign, Wallet, Users, UserPlus, Trophy, CreditCard, Calculator, BookOpen, HelpCircle, UserCircle, Settings } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  const navItems = [
+  const mainNavItems = [
     { icon: BarChart, label: 'Dashboard', path: '/dashboard' },
     { icon: DollarSign, label: 'Portfolio', path: '/dashboard/portfolio' },
     { icon: Wallet, label: 'Wallet', path: '/dashboard/wallet' },
@@ -24,6 +24,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: UserPlus, label: 'Referrals', path: '/dashboard/referrals' },
     { icon: Trophy, label: 'Leadership Pools', path: '/dashboard/pools' },
     { icon: CreditCard, label: 'Withdraw', path: '/dashboard/withdraw' },
+  ];
+
+  const utilityNavItems = [
+    { icon: Calculator, label: 'Calculator', path: '/calculator' },
+    { icon: BookOpen, label: 'Programs', path: '/programs' },
+    { icon: HelpCircle, label: 'FAQ', path: '/faq' },
+    { icon: UserCircle, label: 'Profile', path: '/profile' },
   ];
 
   const handleLogout = () => {
@@ -48,7 +55,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-16 bottom-0 left-0 z-50 w-64 bg-gray-900 border-r border-gray-800 transform ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-gray-900 border-r border-gray-800 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-xl`}
       >
@@ -83,8 +90,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-6 py-4 space-y-1">
-            {navItems.map((item) => (
+          <nav className="flex-1 px-6 py-4 space-y-1 overflow-y-auto">
+            {mainNavItems.map((item) => (
+              <motion.button
+                key={item.label}
+                onClick={() => {
+                  router.push(item.path);
+                  setSidebarOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  pathname === item.path
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+                whileHover={{ x: 5 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <item.icon className="w-5 h-5" />
+                <span>{item.label}</span>
+              </motion.button>
+            ))}
+
+            {/* Divider and Utility Links */}
+            <hr className="my-3 border-gray-700" />
+
+            {utilityNavItems.map((item) => (
               <motion.button
                 key={item.label}
                 onClick={() => {
@@ -111,7 +141,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               onClick={() => router.push("/settings")}
               className="w-full flex items-center space-x-3 px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors"
             >
-              <span className="text-lg">⚙️</span>
+              <Settings className="w-5 h-5" />
               <span>Settings</span>
             </button>
             <button
