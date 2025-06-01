@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const user = JSON.parse(userData);
         dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
-      } catch (error) {
+      } catch (_error) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to parse stored user data' });
