@@ -167,6 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: unknown) {
       console.error('❌ API Call Error:', error);
       if (error instanceof TypeError && error.message.includes('fetch')) {
