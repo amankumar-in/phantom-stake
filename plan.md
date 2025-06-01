@@ -1,4 +1,3 @@
-I'm sorry for the confusion—let's lay everything out in one place. Below is the complete, standalone plan for Phantom Stake with four separate Programs, including all of these sections:
 
 1. **Overview of Phantom Stake**
 2. **High-Level Four-Program Structure**
@@ -9,6 +8,7 @@ I'm sorry for the confusion—let's lay everything out in one place. Below is th
 7. **Four-Program Timeline**
 8. **Risk Disclaimer & Terms**
 9. **Appendix: Summary Tables & Infographics**
+10. STEP-BY-STEP BUILD PLAN
 
 Everything you saw in the original "Overview" and "Calculator" sections is re-introduced here—updated so that each of the four Programs (I, II, III, IV) stands entirely on its own. This fully replaces the prior combined plan. Please scroll through each numbered section carefully.
 
@@ -806,3 +806,778 @@ Those references guided the numbers and structure for each Program's matching, c
 * You should not add this to the previous plan; instead, use this entire document as the new specification.
 
 Please let me know if any section needs more detail or further clarification!
+
+
+# 🔨 **COMPLETE STEP-BY-STEP BUILD PLAN WITH ALL DETAILS** It can be modified on the go as per need.
+
+---
+
+## **STEP 1: CORE FOUNDATION**
+
+### **Backend Files:**
+```
+backend/src/contexts/
+├── AuthContext.js         // User authentication state
+├── ProgramContext.js      // Active program detection (Program I)
+├── WalletContext.js       // Two-wallet state management
+└── AppContext.js          // Global state wrapper
+
+backend/src/controllers/
+├── authController.js      // Login/register/profile
+├── programController.js   // Program I rules & timeline
+└── walletController.js    // Basic wallet operations
+
+backend/src/routes/
+├── auth.js               // /api/auth/* routes
+├── program.js            // /api/program/* routes  
+└── wallet.js             // /api/wallet/* routes
+```
+
+### **Frontend Files:**
+```
+src/contexts/
+├── AuthContext.tsx       // User state, login status
+├── ProgramContext.tsx    // Current program (I), rules
+└── WalletContext.tsx     // Principal + income balances
+
+src/app/dashboard/
+└── page.tsx              // Main dashboard layout
+```
+
+### **API Endpoints Built:**
+```
+POST /api/auth/login
+POST /api/auth/register  
+GET  /api/auth/profile
+GET  /api/program/active         // Returns Program I details
+GET  /api/wallet/overview        // Returns {principal: 500, income: 217}
+```
+
+### **Components Built:**
+- `<DashboardLayout>` with sidebar navigation
+- `<WalletOverview>` showing principal + income balances
+- `<ProgramTimeline>` showing Program I active status
+- `<UserProfile>` header with logout
+
+### **Features Working:**
+- User can login/register
+- Dashboard shows real wallet balance ($717 total)
+- Program I detected as active
+- Basic navigation between pages
+
+---
+
+## **STEP 2: WALLET SYSTEM**
+
+### **Backend Files:**
+```
+backend/src/controllers/walletController.js:
+├── getWalletDetails()     // Principal + income + lock status
+├── depositFunds()         // Add to principal wallet
+├── withdrawIncome()       // From income wallet (anytime)
+├── withdrawPrincipal()    // From principal (after 6 months)
+├── getTransactions()      // All transaction history
+├── calculateFees()        // 5% + gas fee calculation
+└── getLockStatus()        // 6-month lock remaining time
+
+backend/src/models/
+├── Transaction.js         // Transaction schema
+├── Wallet.js             // Wallet state schema
+└── Deposit.js            // Deposit tracking schema
+```
+
+### **Frontend Files:**
+```
+src/app/dashboard/wallet/
+└── page.tsx              // Complete wallet management
+
+src/components/wallet/
+├── PrincipalWallet.tsx   // Principal balance + lock timer
+├── IncomeWallet.tsx      // Income balance + withdraw button
+├── DepositForm.tsx       // Deposit form with validation
+├── WithdrawForm.tsx      // Withdraw form with fee calculation
+├── TransactionHistory.tsx // Transaction table
+├── FeeCalculator.tsx     // Fee breakdown display
+└── LockTimer.tsx         // 6-month countdown display
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/wallet/principal       // {balance: 500, locked: true, unlockDate: "2024-07-15"}
+GET  /api/wallet/income          // {balance: 217, withdrawable: 217}
+GET  /api/wallet/lock-status     // {daysRemaining: 45, canWithdraw: false}
+POST /api/wallet/deposit         // Add to principal wallet
+POST /api/wallet/withdraw-income // Withdraw from income (with 5% fee)
+POST /api/wallet/withdraw-principal // Withdraw principal (if unlocked)
+GET  /api/wallet/transactions    // Complete transaction history
+POST /api/wallet/calculate-fees  // {platformFee: 50, gasFee: 5, total: 55}
+```
+
+### **Features Working:**
+- Two-wallet system fully functional
+- Principal wallet shows lock status and countdown
+- Income wallet allows instant withdrawals
+- Deposit form adds to principal wallet
+- Fee calculation (5% + gas) works
+- Transaction history shows all activities
+- 6-month lock enforcement
+
+---
+
+## **STEP 3: STAKING & ROI ENGINE**
+
+### **Backend Files:**
+```
+backend/src/controllers/stakingController.js:
+├── createStake()          // Create new stake (min 50 USDT)
+├── getActiveStakes()      // User's active stakes
+├── calculateROI()         // Daily 0.75% calculation
+├── processDaily ROI()     // 00:00 UTC cron job
+├── checkEnhancedROI()     // ≥5K stake + ≥1 ref ≥1K qualification
+├── getROIHistory()        // Historical ROI payments
+└── projectFutureROI()     // ROI projections
+
+backend/src/models/
+├── Stake.js              // Stake schema
+├── ROIPayment.js         // Daily ROI tracking
+└── EnhancedROI.js        // Enhanced qualification tracking
+
+backend/src/jobs/
+└── dailyROI.js           // Cron job for daily ROI processing
+```
+
+### **Frontend Files:**
+```
+src/app/dashboard/invest/
+└── page.tsx              // Investment center
+
+src/components/invest/
+├── ActiveStakes.tsx      // List of active stakes
+├── NewStakeForm.tsx      // Create new stake form
+├── ROICalculator.tsx     // ROI projection calculator
+├── EnhancedROITracker.tsx // Enhanced ROI qualification
+├── ROIHistory.tsx        // Historical ROI payments
+├── StakeStats.tsx        // Stake performance metrics
+└── CompoundingStatus.tsx // Compounding readiness display
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/staking/active          // [{amount: 500, date: "2024-01-15", roi: 0.75%}]
+POST /api/staking/create          // Create new stake
+GET  /api/staking/roi-history     // Daily ROI payment history
+GET  /api/staking/roi-projection  // Future ROI calculations
+GET  /api/staking/enhanced-status // Enhanced ROI qualification check
+POST /api/staking/calculate-roi   // Manual ROI calculation
+```
+
+### **Features Working:**
+- Users can create new stakes (minimum 50 USDT)
+- Daily ROI calculation (0.75% Program I base rate)
+- ROI automatically credited to income wallet at 00:00 UTC
+- Enhanced ROI qualification tracking (≥5K stake + ≥1 ref ≥1K)
+- ROI projection calculator
+- Stake performance analytics
+
+---
+
+## **STEP 4: REFERRAL SYSTEM**
+
+### **Backend Files:**
+```
+backend/src/controllers/referralController.js:
+├── generateReferralCode() // Unique referral code
+├── getReferralLink()      // Complete referral URL
+├── trackReferral()        // Process new referral signup
+├── calculateDirectBonus() // 10% direct referral bonus
+├── getReferralStats()     // Referral performance metrics
+└── getDirectReferrals()   // List of direct referrals
+
+backend/src/models/
+├── Referral.js           // Referral relationship schema
+├── ReferralBonus.js      // Direct bonus tracking
+└── ReferralStats.js      // Performance metrics
+```
+
+### **Frontend Files:**
+```
+src/app/dashboard/referrals/
+└── page.tsx              // Referral tools page
+
+src/components/referrals/
+├── ReferralLink.tsx      // Referral link generator
+├── ReferralCode.tsx      // Referral code display
+├── DirectReferrals.tsx   // List of direct referrals
+├── ReferralStats.tsx     // Performance metrics
+├── SocialShare.tsx       // Social sharing tools
+└── InviteSystem.tsx      // Email/SMS invitations
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/referrals/code          // {code: "USER123", link: "https://..."}
+GET  /api/referrals/stats         // {totalReferrals: 3, totalEarnings: 300}
+GET  /api/referrals/direct        // List of direct referrals
+POST /api/referrals/track         // Process new referral
+POST /api/referrals/bonus         // Calculate 10% direct bonus
+```
+
+### **Features Working:**
+- Unique referral codes generated
+- Referral link tracking
+- 10% direct referral bonus calculation
+- Direct referral management
+- Referral performance analytics
+- Social sharing tools
+
+---
+
+## **STEP 5: BINARY TREE FOUNDATION**
+
+### **Backend Files:**
+```
+backend/src/controllers/treeController.js:
+├── getBinaryTree()        // Complete tree structure
+├── placeMember()          // Auto-place in left/right leg
+├── manualPlacement()      // Manual leg placement
+├── calculateTeamVolume()  // Left + right leg volumes
+├── getTeamSize()          // Total team member count
+└── getTreeAnalytics()     // Tree performance metrics
+
+backend/src/models/
+├── BinaryTree.js         // Tree structure schema
+├── TeamMember.js         // Team member schema
+└── LegPlacement.js       // Placement tracking
+```
+
+### **Frontend Files:**
+```
+src/app/dashboard/teams/
+└── page.tsx              // Team management page
+
+src/components/teams/
+├── BinaryTreeView.tsx    // Tree visualization
+├── TreeNode.tsx          // Individual tree node
+├── LegStats.tsx          // Left/right leg statistics
+├── TeamOverview.tsx      // Team summary stats
+├── PlacementTools.tsx    // Manual placement interface
+└── TreeNavigation.tsx    // Tree navigation controls
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/tree/binary             // Complete binary tree structure
+GET  /api/tree/legs               // {left: [...], right: [...]}
+GET  /api/tree/volume             // {leftVolume: 2700, rightVolume: 1800}
+POST /api/tree/place-member       // Auto-place new member
+POST /api/tree/manual-place       // Manual placement
+GET  /api/tree/analytics          // Tree performance metrics
+```
+
+### **Features Working:**
+- Binary tree visualization
+- Left/right leg auto-placement
+- Team volume calculations
+- Basic tree navigation
+- Manual placement tools
+- Team statistics display
+
+---
+
+## **STEP 6: BINARY MATCHING ENGINE**
+
+### **Backend Files:**
+```
+backend/src/controllers/matchingController.js:
+├── calculatePairs()       // Min(leftVolume, rightVolume) ÷ 100
+├── processMatching()      // 8% Bronze matching bonus
+├── checkDailyCap()        // 2,100 USDT daily cap
+├── trackSpillover()       // Unmatched volume tracking
+├── getMatchingHistory()   // Historical pair formations
+└── calculateMatchingBonus() // Rank-based matching rates
+
+backend/src/models/
+├── BinaryPair.js         // Pair formation tracking
+├── MatchingBonus.js      // Matching bonus payments
+└── Spillover.js          // Spillover volume tracking
+```
+
+### **Frontend Files:**
+```
+src/components/teams/
+├── MatchingStats.tsx     // Pair formation statistics
+├── MatchingCalculator.tsx // Matching bonus calculator
+├── SpilloverTracker.tsx  // Spillover volume display
+├── MatchingHistory.tsx   // Historical matching data
+└── DailyCapStatus.tsx    // Daily cap remaining
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/matching/pairs          // {pairs: 18, matchedVolume: 1800}
+GET  /api/matching/bonus          // Current matching bonus amount
+GET  /api/matching/daily-cap      // {used: 1800, remaining: 300}
+GET  /api/matching/spillover      // Unmatched volume in each leg
+POST /api/matching/calculate      // Force recalculate pairs
+GET  /api/matching/history        // Historical pair formations
+```
+
+### **Features Working:**
+- Binary pair calculation (18 pairs from example)
+- 8% Bronze matching bonus (8% × 1800 = 144 USDT)
+- Daily cap enforcement (2,100 USDT for Bronze)
+- Spillover tracking and display
+- Matching bonus history
+- Real-time pair formation
+
+---
+
+## **STEP 7: RANK SYSTEM**
+
+### **Backend Files:**
+```
+backend/src/controllers/rankController.js:
+├── calculateRank()        // Bronze/Silver/Gold/Diamond/Ruby
+├── checkRequirements()    // Volume + stake requirements
+├── updateMatchingRate()   // 8% → 9% → 10% → 11% → 12%
+├── updateDailyCap()       // 2100 → 2500 → 3000 → 4000 → 5000
+├── getRankBenefits()      // Current rank benefits
+└── trackRankHistory()     // Rank progression history
+
+backend/src/models/
+├── Rank.js               // User rank tracking
+├── RankRequirement.js    // Rank qualification rules
+└── RankHistory.js        // Rank progression history
+```
+
+### **Frontend Files:**
+```
+src/components/teams/
+├── RankDisplay.tsx       // Current rank with benefits
+├── RankProgress.tsx      // Progress to next rank
+├── RankRequirements.tsx  // All rank requirements
+├── RankBenefits.tsx      // Rank benefit comparison
+└── RankHistory.tsx       // Rank advancement history
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/ranks/current           // {rank: "Bronze", matchingRate: 8%, dailyCap: 2100}
+GET  /api/ranks/requirements      // All rank requirements
+GET  /api/ranks/progress          // Progress to next rank
+POST /api/ranks/calculate         // Force rank recalculation
+GET  /api/ranks/benefits          // Current rank benefits
+GET  /api/ranks/history           // Rank progression history
+```
+
+### **Features Working:**
+- Automatic rank calculation based on 30-day volume + personal stake
+- Bronze rank qualification (≥5K volume, ≥500 stake)
+- Higher matching rates for higher ranks
+- Increased daily caps for higher ranks
+- Rank progression tracking
+- Rank benefit display
+
+---
+
+## **STEP 8: LEVEL OVERRIDES**
+
+### **Backend Files:**
+```
+backend/src/controllers/overrideController.js:
+├── calculateOverrides()   // 15-level cascade calculation
+├── checkQualifications()  // Override qualification per level
+├── processOverride()      // Level 1: 5%, Level 2: 2%, etc.
+├── trackDownlineActivity() // Monitor downline deposits/ROI
+├── getOverrideEarnings()  // Override earnings breakdown
+└── getOverrideHistory()   // Historical override payments
+
+backend/src/models/
+├── LevelOverride.js      // Override structure schema
+├── OverridePayment.js    // Override payment tracking
+└── DownlineActivity.js   // Downline activity monitoring
+```
+
+### **Frontend Files:**
+```
+src/components/earnings/
+├── OverrideStructure.tsx // 15-level override display
+├── OverrideEarnings.tsx  // Override earnings breakdown
+├── LevelStats.tsx        // Statistics per level
+├── OverrideHistory.tsx   // Historical override payments
+└── QualificationStatus.tsx // Override qualification display
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/overrides/structure     // 15-level override structure
+GET  /api/overrides/earnings      // {level1: 150, level2: 40, total: 190}
+GET  /api/overrides/qualifications // Qualification status per level
+GET  /api/overrides/downline      // Downline activity monitoring
+POST /api/overrides/calculate     // Force override recalculation
+GET  /api/overrides/history       // Historical override payments
+```
+
+### **Features Working:**
+- 15-level override calculation
+- Level 1: 5% (150 USDT from 3K direct referral volume)
+- Level 2: 2% (40 USDT from 2K level 2 volume)
+- Override qualification checking
+- Downline activity monitoring
+- Override earnings breakdown
+
+---
+
+## **STEP 9: COMPOUNDING SYSTEM**
+
+### **Backend Files:**
+```
+backend/src/controllers/compoundingController.js:
+├── checkCompoundingTrigger() // 7 days no withdrawal
+├── activateCompounding()     // Start 1.0% daily compounding
+├── calculateCompounding()    // Apply 1.0% to income wallet
+├── breakCompounding()        // Reset on withdrawal
+├── getCompoundingStatus()    // Current compounding state
+└── projectCompounding()      // Compounding projections
+
+backend/src/models/
+├── CompoundingStatus.js  // Compounding state tracking
+├── WithdrawalDay.js      // Withdrawal day counter
+└── CompoundingHistory.js // Compounding performance history
+```
+
+### **Frontend Files:**
+```
+src/components/invest/
+├── CompoundingTracker.tsx // Compounding status display
+├── WithdrawalCounter.tsx  // Days without withdrawal
+├── CompoundingRate.tsx    // Current compounding rate
+├── CompoundingProjector.tsx // Compounding projections
+└── BreakCompounding.tsx   // Break compounding warning
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/compounding/status      // {active: false, daysWithout: 5, threshold: 7}
+GET  /api/compounding/rate        // {rate: 1.0%, nextApplication: "tomorrow"}
+POST /api/compounding/activate    // Activate compounding
+POST /api/compounding/break       // Break compounding (on withdrawal)
+GET  /api/compounding/projections // Future compounding calculations
+```
+
+### **Features Working:**
+- 7-day withdrawal tracking
+- Automatic compounding activation on Day 8
+- 1.0% daily compounding rate (Program I)
+- Compounding break on any withdrawal
+- Minimum 50 USDT threshold enforcement
+- Compounding projections and analytics
+
+---
+
+## **STEP 10: LEADERSHIP POOLS**
+
+### **Backend Files:**
+```
+backend/src/controllers/poolController.js:
+├── calculateMonthlyPools() // Silver: 0.5%, Gold: 1.0%, etc.
+├── distributePool()        // Pro-rata distribution
+├── checkPoolEligibility()  // Rank + stake requirements
+├── getPoolShare()          // Individual pool share
+├── getPoolHistory()        // Historical pool distributions
+└── processMonthlyDistribution() // End-of-month distribution
+
+backend/src/models/
+├── LeadershipPool.js     // Pool calculation schema
+├── PoolDistribution.js   // Distribution tracking
+└── PoolEligibility.js    // Eligibility tracking
+```
+
+### **Frontend Files:**
+```
+src/components/earnings/
+├── PoolOverview.tsx      // Leadership pool overview
+├── PoolEligibility.tsx   // Pool eligibility status
+├── PoolShare.tsx         // Monthly pool share calculation
+├── PoolHistory.tsx       // Historical pool distributions
+└── PoolProjections.tsx   // Pool earning projections
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/pools/overview          // All leadership pools
+GET  /api/pools/eligibility       // {silver: true, gold: false, ...}
+GET  /api/pools/share             // Monthly pool share calculation
+GET  /api/pools/history           // Historical distributions
+POST /api/pools/calculate         // Force pool recalculation
+GET  /api/pools/monthly-deposits  // Total monthly deposits
+```
+
+### **Features Working:**
+- Monthly leadership pool calculation
+- Pro-rata distribution among qualified members
+- Pool eligibility checking
+- Pool share projections
+- Historical pool performance
+- Automatic monthly distribution
+
+---
+
+## **STEP 11: MILESTONE SYSTEM**
+
+### **Backend Files:**
+```
+backend/src/controllers/milestoneController.js:
+├── trackExecutiveBonus()  // ≥5K stake + ≥10 pairs in 30 days
+├── trackRoyalBonus()      // ≥10K stake + ≥25 pairs in 60 days
+├── trackLifetimeGifts()   // 100/250/500/1000 pair milestones
+├── processWeeklyBonus()   // 250 USDT/week × 12 weeks
+├── claimReward()          // Claim milestone rewards
+└── getMilestoneProgress() // Current milestone progress
+
+backend/src/models/
+├── ExecutiveBonus.js     // Executive bonus tracking
+├── RoyalBonus.js         // Royal bonus tracking
+├── LifetimeGift.js       // Lifetime gift tracking
+└── MilestoneProgress.js  // Progress tracking
+```
+
+### **Frontend Files:**
+```
+src/app/dashboard/milestones/
+└── page.tsx              // Milestones & rewards page
+
+src/components/milestones/
+├── ExecutiveBonusTracker.tsx // Executive bonus progress
+├── RoyalBonusTracker.tsx     // Royal bonus progress
+├── LifetimeGifts.tsx         // Lifetime gift milestones
+├── MilestoneProgress.tsx     // Overall progress display
+├── RewardClaim.tsx           // Reward claiming interface
+└── AchievementGallery.tsx    // Achievement display
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/milestones/executive    // Executive bonus status
+GET  /api/milestones/royal        // Royal bonus status
+GET  /api/milestones/gifts        // Lifetime gift progress
+GET  /api/milestones/progress     // Overall milestone progress
+POST /api/milestones/claim        // Claim milestone reward
+GET  /api/milestones/history      // Completed milestones
+```
+
+### **Features Working:**
+- Executive bonus tracking (5K stake + 10 pairs → 250 USDT/week)
+- Royal bonus tracking (10K stake + 25 pairs → 1000 USDT/week)
+- Lifetime gift system (iPad, MacBook, Tesla, Villa)
+- Milestone progress visualization
+- Reward claiming system
+- Achievement gallery
+
+---
+
+## **STEP 12: EARNINGS CENTER**
+
+### **Frontend Files:**
+```
+src/app/dashboard/earnings/
+└── page.tsx              // Complete earnings center
+
+src/components/earnings/
+├── EarningsOverview.tsx  // Complete earnings breakdown
+├── IncomeSourceBreakdown.tsx // All income sources
+├── EarningsHistory.tsx   // Historical earnings
+├── PerformanceAnalytics.tsx // Earnings performance
+├── EarningsProjections.tsx // Future earnings projections
+├── TaxReporting.tsx      // Tax reporting tools
+└── EarningsExport.tsx    // Export earnings data
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/earnings/overview       // Complete earnings breakdown
+GET  /api/earnings/sources        // All income sources
+GET  /api/earnings/history        // Historical earnings
+GET  /api/earnings/analytics      // Performance analytics
+GET  /api/earnings/projections    // Future earnings projections
+POST /api/earnings/export         // Export earnings data
+```
+
+### **Features Working:**
+- Complete earnings transparency
+- All income sources breakdown
+- Earnings performance analytics
+- Historical earnings tracking
+- Future earnings projections
+- Tax reporting capabilities
+
+---
+
+## **STEP 13: ADVANCED TREE FEATURES**
+
+### **Frontend Files:**
+```
+src/components/teams/
+├── InfiniteTreeView.tsx  // Infinite depth tree expansion
+├── TreeSearch.tsx        // Search tree members
+├── TreeFilter.tsx        // Filter tree by criteria
+├── ManualPlacement.tsx   // Advanced placement tools
+├── TreeAnalytics.tsx     // Advanced tree analytics
+├── TeamPerformance.tsx   // Team performance metrics
+└── TreeExport.tsx        // Export tree data
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/tree/infinite           // Infinite depth tree data
+GET  /api/tree/search             // Search tree members
+POST /api/tree/filter             // Filter tree by criteria
+POST /api/tree/manual-place       // Advanced manual placement
+GET  /api/tree/analytics          // Advanced tree analytics
+POST /api/tree/export             // Export tree data
+```
+
+### **Features Working:**
+- Infinite depth tree visualization
+- Advanced tree search and filtering
+- Professional manual placement tools
+- Comprehensive tree analytics
+- Team performance tracking
+- Tree data export capabilities
+
+---
+
+## **STEP 14: PROGRAM TRANSITIONS**
+
+### **Backend Files:**
+```
+backend/src/controllers/transitionController.js:
+├── getProgramTimeline()   // All 4 programs timeline
+├── checkProgramEnd()      // Program end date checking
+├── activateGracePeriod()  // 15-day grace period activation
+├── lockProgram()          // Permanent program locking
+├── migrateToNext()        // Migrate to next program
+└── getTransitionStatus()  // Current transition status
+
+backend/src/models/
+├── ProgramTimeline.js    // Program timeline schema
+├── GracePeriod.js        // Grace period tracking
+└── ProgramMigration.js   // Migration tracking
+```
+
+### **Frontend Files:**
+```
+src/components/program/
+├── ProgramTimeline.tsx   // 4-program timeline bar
+├── ProgramCountdown.tsx  // Program end countdown
+├── GracePeriodStatus.tsx // Grace period management
+├── TransitionStatus.tsx  // Transition status display
+└── ProgramMigration.tsx  // Migration interface
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/program/timeline        // All 4 programs timeline
+GET  /api/program/countdown       // Days until program end
+GET  /api/program/grace-period    // Grace period status
+GET  /api/program/transition      // Transition status
+POST /api/program/migrate         // Migrate to next program
+```
+
+### **Features Working:**
+- 4-program timeline visualization
+- Program end countdown timers
+- Grace period management
+- Program transition handling
+- Data migration between programs
+- Program lock enforcement
+
+---
+
+## **STEP 15: TESTING INFRASTRUCTURE**
+
+### **Backend Files:**
+```
+backend/src/testing/
+├── scenarioEngine.js     // Test scenario creation
+├── timeSimulation.js     // Time passage simulation
+├── networkSimulation.js // Network activity simulation
+├── dataReset.js          // Clean slate reset
+└── testingController.js  // Testing API controller
+
+backend/src/scenarios/
+├── bronzeScenario.js     // Bronze rank scenario
+├── silverScenario.js     // Silver rank scenario
+├── goldScenario.js       // Gold rank scenario
+├── diamondScenario.js    // Diamond rank scenario
+└── rubyScenario.js       // Ruby rank scenario
+```
+
+### **Frontend Files:**
+```
+src/components/testing/
+├── TestingPanel.tsx      // Main testing interface
+├── ScenarioLoader.tsx    // Load predefined scenarios
+├── TimeSimulator.tsx     // Time simulation controls
+├── NetworkSimulator.tsx  // Network simulation controls
+├── DataResetter.tsx      // Reset system to clean state
+└── TestingAnalytics.tsx  // Testing performance analytics
+```
+
+### **API Endpoints Built:**
+```
+POST /api/testing/scenario        // Load test scenario
+POST /api/testing/time-advance    // Advance time simulation
+POST /api/testing/network-sim     // Simulate network activity
+POST /api/testing/reset           // Reset to clean state
+GET  /api/testing/analytics       // Testing analytics
+```
+
+### **Features Working:**
+- Complete scenario testing system
+- Time simulation for ROI/compounding testing
+- Network simulation for MLM testing
+- Data reset capabilities
+- Testing performance analytics
+- Scenario loading and management
+
+---
+
+## **STEP 16: ANALYTICS & OPTIMIZATION**
+
+### **Frontend Files:**
+```
+src/app/dashboard/analytics/
+└── page.tsx              // Analytics dashboard
+
+src/components/analytics/
+├── PerformanceDashboard.tsx // Overall performance metrics
+├── TrendAnalysis.tsx        // Trend analysis and insights
+├── OptimizationSuggestions.tsx // AI-powered suggestions
+├── AdvancedReporting.tsx    // Advanced reporting tools
+├── DataExport.tsx           // Data export capabilities
+├── CustomDashboard.tsx      // Customizable dashboard
+└── PredictiveAnalytics.tsx  // Predictive analytics
+```
+
+### **API Endpoints Built:**
+```
+GET  /api/analytics/performance   // Performance metrics
+GET  /api/analytics/trends        // Trend analysis
+GET  /api/analytics/optimization  // Optimization suggestions
+POST /api/analytics/export        // Export analytics data
+GET  /api/analytics/predictions   // Predictive analytics
+POST /api/analytics/custom        // Custom analytics queries
+```
+
+### **Features Working:**
+- Comprehensive performance dashboards
+- Advanced trend analysis
+- AI-powered optimization suggestions
+- Custom reporting capabilities
+- Predictive analytics
+- Data export and visualization
+
+---
+
+**This is the complete 16-step build plan with every detail of what gets built in each step.**

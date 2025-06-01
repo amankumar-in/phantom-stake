@@ -1,23 +1,17 @@
 const express = require('express');
-const walletController = require('../controllers/walletController');
-const authMiddleware = require('../middleware/auth');
-
 const router = express.Router();
+const walletController = require('../controllers/walletController');
+const auth = require('../middleware/auth');
 
-// All wallet routes require authentication
-router.use(authMiddleware);
+// Apply auth middleware to all wallet routes
+router.use(auth);
 
-// Wallet overview and stats
-router.get('/overview', walletController.getWalletOverview);
-router.get('/stats', walletController.getWalletStats);
-router.get('/transactions', walletController.getTransactionHistory);
-
-// Dummy operations for testing
-router.post('/dummy-deposit', walletController.dummyDeposit);
-router.post('/dummy-income', walletController.addDummyIncome);
-
-// Withdrawal operations
-router.post('/withdraw-income', walletController.processWithdrawal);
+// Wallet routes
+router.get('/details', walletController.getWalletDetails);
+router.post('/deposit', walletController.depositFunds);
+router.post('/withdraw-income', walletController.withdrawIncome);
 router.post('/withdraw-principal', walletController.withdrawPrincipal);
+router.post('/calculate-fees', walletController.calculateFees);
+router.get('/lock-status', walletController.getLockStatus);
 
-module.exports = router; 
+module.exports = router;

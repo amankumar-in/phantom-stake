@@ -15,6 +15,13 @@ export default function Calculator() {
   const totalReturn = dailyReturn * timeframe;
   const totalValue = investmentAmount + totalReturn;
 
+  const calculateReturns = () => {
+    if (investmentAmount < 500) {
+      alert('Minimum investment is $500');
+      return;
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 py-12">
       {/* Background Effects */}
@@ -85,11 +92,11 @@ export default function Calculator() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-gray-300 text-lg font-medium mb-3">
-                    Investment Amount (Minimum: $50)
+                    Investment Amount (Minimum: $500)
                   </label>
                   <input
                     type="number"
-                    min="50"
+                    min="500"
                     value={investmentAmount}
                     onChange={(e) => setInvestmentAmount(Number(e.target.value))}
                     className="w-full px-6 py-4 bg-gray-800 border border-gray-600 rounded-lg text-white text-2xl font-bold focus:outline-none focus:border-purple-500"
@@ -321,12 +328,12 @@ export default function Calculator() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.0 }}
         >
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">🎁 Free Gifts for Top Performers</h2>
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">🎁 Achievement Rewards</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-black/20 rounded-lg p-6 text-center border border-purple-500/30">
               <div className="text-3xl font-bold text-purple-300 mb-2">100</div>
-              <div className="text-sm text-gray-400 mb-3">Team Pairs</div>
+              <div className="text-sm text-gray-400 mb-3">Balance Points</div>
               <div className="space-y-2">
                 <div className="text-lg font-bold text-white">$500 Cash</div>
                 <div className="text-purple-300 font-semibold">+ iPad</div>
@@ -335,7 +342,7 @@ export default function Calculator() {
             
             <div className="bg-black/20 rounded-lg p-6 text-center border border-purple-500/30">
               <div className="text-3xl font-bold text-purple-300 mb-2">250</div>
-              <div className="text-sm text-gray-400 mb-3">Team Pairs</div>
+              <div className="text-sm text-gray-400 mb-3">Balance Points</div>
               <div className="space-y-2">
                 <div className="text-lg font-bold text-white">$1,500 Cash</div>
                 <div className="text-purple-300 font-semibold">+ MacBook Pro</div>
@@ -344,7 +351,7 @@ export default function Calculator() {
             
             <div className="bg-black/20 rounded-lg p-6 text-center border border-purple-500/30">
               <div className="text-3xl font-bold text-purple-300 mb-2">500</div>
-              <div className="text-sm text-gray-400 mb-3">Team Pairs</div>
+              <div className="text-sm text-gray-400 mb-3">Balance Points</div>
               <div className="space-y-2">
                 <div className="text-lg font-bold text-white">$5,000 Cash</div>
                 <div className="text-purple-300 font-semibold">+ Tesla Model 3</div>
@@ -353,7 +360,7 @@ export default function Calculator() {
             
             <div className="bg-black/20 rounded-lg p-6 text-center border border-purple-500/30">
               <div className="text-3xl font-bold text-purple-300 mb-2">1,000</div>
-              <div className="text-sm text-gray-400 mb-3">Team Pairs</div>
+              <div className="text-sm text-gray-400 mb-3">Balance Points</div>
               <div className="space-y-2">
                 <div className="text-lg font-bold text-white">$10,000 Cash</div>
                 <div className="text-purple-300 font-semibold">+ Luxury Villa</div>
@@ -362,11 +369,15 @@ export default function Calculator() {
           </div>
 
           <div className="mt-8 bg-blue-900/30 border border-blue-500/30 rounded-lg p-6">
-            <h4 className="text-blue-300 font-bold text-center mb-3">What are "Team Pairs"?</h4>
-            <p className="text-gray-300 text-center">
-              When you build a team on both your left and right sides, and they balance out, you create "pairs". 
-              The more pairs you create, the bigger gifts you win!
+            <h4 className="text-blue-300 font-bold text-center mb-3">💡 How to Earn Balance Points</h4>
+            <p className="text-gray-300 text-center mb-3">
+              When you build a team, you have people on your left side and right side. When both sides grow equally, you earn points!
             </p>
+            <div className="bg-black/20 rounded-lg p-4 max-w-2xl mx-auto">
+              <p className="text-white text-center">
+                <strong>Example:</strong> Left team has $1,000 volume, Right team has $1,000 volume = You earn 1 balance point
+              </p>
+            </div>
           </div>
         </motion.div>
 

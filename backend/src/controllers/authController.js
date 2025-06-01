@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const TreeNode = require('../models/TreeNode');
+const mlmService = require('../services/mlmService');
 const validator = require('validator');
 
 const authController = {
@@ -80,14 +82,43 @@ const authController = {
       const user = new User(userData);
       await user.save();
 
-      // Add user to referrer's referrals list
+      // Add user to referrer's referrals list and update direct referral count
       if (referredBy) {
         referredBy.referral.referrals.push({
           user: user._id,
           dateReferred: new Date(),
           commission: 0,
         });
+        referredBy.referral.directReferrals = referredBy.referral.referrals.length;
         await referredBy.save();
+      }
+
+      // Create binary tree node
+      try {
+        if (referredBy) {
+          // Auto-place in binary tree under sponsor
+          await mlmService.autoPlaceNewMember(user._id, referredBy._id);
+        } else {
+          // This is the first user or a user with no referrer - create root node
+          const rootNode = new TreeNode({
+            userId: user._id,
+            parentId: null,
+            sponsorId: user._id, // Self-sponsored if no referrer
+            position: 'root',
+            treePosition: '',
+            treeNodeLevel: 0,
+            referralLevel: 0,
+            personalVolume: 0,
+            leftLegVolume: 0,
+            rightLegVolume: 0,
+            isActive: true,
+          });
+          await rootNode.save();
+        }
+      } catch (treeError) {
+        console.error('Binary tree creation error:', treeError);
+        // Continue with registration even if tree creation fails
+        // This can be fixed later by admin
       }
 
       // Generate JWT token

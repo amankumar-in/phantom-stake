@@ -1,11 +1,12 @@
 const User = require('../models/User');
+const Stake = require('../models/Stake');
+const mlmService = require('../services/mlmService');
 
 const walletController = {
-  // Get wallet overview
-  getWalletOverview: async (req, res) => {
+  // Get complete wallet details
+  getWalletDetails: async (req, res) => {
     try {
       const user = await User.findById(req.user._id);
-
       if (!user) {
         return res.status(404).json({
           status: 'error',
@@ -13,105 +14,81 @@ const walletController = {
         });
       }
 
-      // Check if principal wallet should be unlocked
-      user.unlockPrincipalWallet();
-      await user.save();
+      // Calculate days active (from first deposit)
+      const daysActive = user.wallets.principal.totalDeposited > 0 
+        ? Math.floor((Date.now() - user.createdAt) / (1000 * 60 * 60 * 24))
+        : 0;
 
-      res.status(200).json({
-        status: 'success',
-        data: {
-          principal: {
-            balance: user.wallets.principal.balance,
-            locked: user.wallets.principal.locked,
-            lockExpiry: user.wallets.principal.lockExpiry,
-            totalDeposited: user.wallets.principal.totalDeposited,
-            canWithdraw: !user.wallets.principal.locked,
-          },
-          income: {
-            balance: user.wallets.income.balance,
-            totalEarned: user.wallets.income.totalEarned,
-            totalWithdrawn: user.wallets.income.totalWithdrawn,
-            compoundingActive: !!user.wallets.income.compoundingStart,
-            compoundingRate: user.wallets.income.compoundingRate,
-            canWithdraw: user.wallets.income.balance >= 50, // Min withdrawal amount for testing
-          },
-          summary: {
-            totalBalance: user.totalBalance,
-            availableBalance: user.availableBalance,
-            lockedBalance: user.lockedBalance,
-            dailyEarnings: user.dailyEarnings,
-          },
+      // Calculate today's ROI
+      const todayROI = user.wallets.principal.balance * 0.0075; // 0.75% daily
+
+      // Get recent transactions (mock for now)
+      const transactions = [
+        {
+          type: 'deposit',
+          amount: user.wallets.principal.totalDeposited,
+          date: user.createdAt,
         },
-      });
-    } catch (error) {
-      console.error('Wallet overview error:', error);
-      res.status(500).json({
-        status: 'error',
-        message: 'Failed to fetch wallet data',
-      });
-    }
-  },
+        {
+          type: 'roi',
+          amount: todayROI,
+          date: new Date(),
+        }
+      ].filter(tx => tx.amount > 0);
 
-  // Process dummy deposit (for testing)
-  dummyDeposit: async (req, res) => {
-    try {
-      const { amount, description } = req.body;
-
-      // Validate amount
-      if (!amount || amount < 50) {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Minimum deposit amount is $50',
-        });
-      }
-
-      if (amount > 50000) {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Maximum test deposit amount is $50,000',
-        });
-      }
-
-      const user = await User.findById(req.user._id);
-      if (!user) {
-        return res.status(404).json({
-          status: 'error',
-          message: 'User not found',
-        });
-      }
-
-      // Process the dummy deposit
-      await user.processDummyDeposit(amount, description || `Test deposit of $${amount}`);
-
-      res.status(200).json({
-        status: 'success',
-        message: 'Dummy deposit processed successfully',
-        data: {
-          amount: amount,
-          newPrincipalBalance: user.wallets.principal.balance,
-          totalBalance: user.totalBalance,
+      const walletData = {
+        principal: {
+          balance: user.wallets.principal.balance,
+          totalDeposited: user.wallets.principal.totalDeposited,
+          locked: user.wallets.principal.locked,
           lockExpiry: user.wallets.principal.lockExpiry,
         },
+        income: {
+          balance: user.wallets.income.balance,
+          totalEarned: user.wallets.income.totalEarned,
+          totalWithdrawn: user.wallets.income.totalWithdrawn,
+          todayROI: todayROI,
+        },
+        daysActive,
+        transactions,
+      };
+
+      res.json({
+        status: 'success',
+        data: walletData,
       });
     } catch (error) {
-      console.error('Dummy deposit error:', error);
+      console.error('Error getting wallet details:', error);
       res.status(500).json({
         status: 'error',
-        message: error.message || 'Failed to process deposit',
+        message: 'Failed to get wallet details',
       });
     }
   },
 
-  // Process withdrawal from income wallet
-  processWithdrawal: async (req, res) => {
+  // Deposit funds to principal wallet
+  depositFunds: async (req, res) => {
+    /**
+     * WARNING: This is a TEST SYSTEM ONLY implementation
+     * 
+     * For production with real Ethereum/USDT:
+     * - Integrate Web3.js for blockchain interaction
+     * - Create smart contracts for secure deposits
+     * - Implement wallet connection (MetaMask, etc)
+     * - Add transaction monitoring and confirmations
+     * - Handle real gas fees and network delays
+     * - Add comprehensive security measures
+     * - Ensure regulatory compliance (KYC/AML)
+     * 
+     * NEVER use this code with real money without proper blockchain integration!
+     */
     try {
-      const { amount, description } = req.body;
-
-      // Validate amount
-      if (!amount || amount < 50) {
+      const { amount } = req.body;
+      
+      if (!amount || amount < 500) {
         return res.status(400).json({
           status: 'error',
-          message: 'Minimum withdrawal amount is $50',
+          message: 'Minimum deposit is 500 USDT',
         });
       }
 
@@ -123,46 +100,129 @@ const walletController = {
         });
       }
 
-      // Check if user has sufficient balance
+      // Add to principal wallet
+      user.wallets.principal.balance += amount;
+      user.wallets.principal.totalDeposited += amount;
+      
+      // Lock principal for 6 months if first deposit
+      if (!user.wallets.principal.lockExpiry) {
+        user.wallets.principal.locked = true;
+        user.wallets.principal.lockExpiry = new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000); // 6 months
+      }
+
+      // Create a new stake
+      const stake = new Stake({
+        userId: user._id,
+        amount: amount,
+        currency: 'USDT',
+        roiRate: 0.0075, // 0.75% daily (will be updated if enhanced ROI qualifies)
+        lockPeriod: 180, // 6 months in days
+        status: 'active',
+        dailyROI: amount * 0.0075,
+        enhancedROI: false, // Will be updated after checking qualifications
+      });
+
+      await stake.save();
+      await user.save();
+
+      // Trigger MLM calculations
+      try {
+        // Update personal volume in binary tree
+        await mlmService.updatePersonalVolume(user._id, amount);
+        
+        // Process level overrides for this deposit
+        await mlmService.processLevelOverrides(user._id, 'deposit', amount);
+      } catch (mlmError) {
+        console.error('MLM processing error:', mlmError);
+        // Continue even if MLM processing fails - deposit is already saved
+      }
+
+      // Check for enhanced ROI qualification (can be async)
+      checkEnhancedROIQualification(user._id);
+
+      res.json({
+        status: 'success',
+        message: 'Funds deposited successfully',
+        data: {
+          newBalance: user.wallets.principal.balance,
+          lockExpiry: user.wallets.principal.lockExpiry,
+          stakeId: stake._id,
+          dailyROI: stake.dailyROI,
+        },
+      });
+    } catch (error) {
+      console.error('Error depositing funds:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to deposit funds',
+      });
+    }
+  },
+
+  // Withdraw from income wallet
+  withdrawIncome: async (req, res) => {
+    try {
+      const { amount } = req.body;
+      
+      if (!amount || amount < 1000) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Minimum withdrawal is 1,000 USDT',
+        });
+      }
+
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'User not found',
+        });
+      }
+
       if (user.wallets.income.balance < amount) {
         return res.status(400).json({
           status: 'error',
-          message: `Insufficient income balance. Available: $${user.wallets.income.balance.toFixed(2)}`,
+          message: 'Insufficient income balance',
         });
       }
 
-      // Process the withdrawal
-      await user.processWithdrawal(amount, description);
+      // Calculate fees
+      const platformFee = amount * 0.05; // 5%
+      const gasFee = 5; // 5 USDT minimum
+      const totalFees = platformFee + gasFee;
+      const netAmount = amount - totalFees;
 
-      // Calculate fee and net amount for response
-      const fee = amount * 0.05;
-      const netAmount = amount - fee;
+      // Update balances
+      user.wallets.income.balance -= amount;
+      user.wallets.income.totalWithdrawn += amount;
 
-      res.status(200).json({
+      await user.save();
+
+      res.json({
         status: 'success',
         message: 'Withdrawal processed successfully',
         data: {
-          requestedAmount: amount,
-          fee: fee,
-          netAmount: netAmount,
-          newIncomeBalance: user.wallets.income.balance,
-          totalBalance: user.totalBalance,
+          amount,
+          platformFee,
+          gasFee,
+          netAmount,
+          newBalance: user.wallets.income.balance,
         },
       });
     } catch (error) {
-      console.error('Withdrawal error:', error);
+      console.error('Error withdrawing income:', error);
       res.status(500).json({
         status: 'error',
-        message: error.message || 'Failed to process withdrawal',
+        message: 'Failed to process withdrawal',
       });
     }
   },
 
-  // Process principal wallet withdrawal (after unlock)
+  // Withdraw from principal wallet (if unlocked)
   withdrawPrincipal: async (req, res) => {
     try {
-      const { amount, description } = req.body;
-
+      const { amount } = req.body;
+      
       const user = await User.findById(req.user._id);
       if (!user) {
         return res.status(404).json({
@@ -171,139 +231,93 @@ const walletController = {
         });
       }
 
-      // Check if principal wallet is unlocked
-      user.unlockPrincipalWallet();
-      
-      if (user.wallets.principal.locked) {
+      // Check if principal is locked
+      if (user.wallets.principal.locked && new Date() < user.wallets.principal.lockExpiry) {
         return res.status(400).json({
           status: 'error',
-          message: `Principal wallet is locked until ${user.wallets.principal.lockExpiry.toLocaleDateString()}`,
-        });
-      }
-
-      // Validate amount
-      if (!amount || amount < 50) {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Minimum withdrawal amount is $50',
+          message: 'Principal wallet is still locked',
         });
       }
 
       if (user.wallets.principal.balance < amount) {
         return res.status(400).json({
           status: 'error',
-          message: `Insufficient principal balance. Available: $${user.wallets.principal.balance.toFixed(2)}`,
+          message: 'Insufficient principal balance',
         });
       }
 
-      // Calculate fee and net amount
-      const fee = amount * 0.05;
-      const netAmount = amount - fee;
+      // Calculate fees
+      const platformFee = amount * 0.05; // 5%
+      const gasFee = 5; // 5 USDT minimum
+      const totalFees = platformFee + gasFee;
+      const netAmount = amount - totalFees;
 
-      // Process withdrawal from principal wallet
+      // Update balance
       user.wallets.principal.balance -= amount;
-
-      // Add transaction record
-      user.transactions.push({
-        type: 'withdrawal',
-        amount: netAmount,
-        walletType: 'principal',
-        description: `${description || 'Principal withdrawal'} (Net: $${netAmount.toFixed(2)}, Fee: $${fee.toFixed(2)})`,
-        status: 'completed',
-        date: new Date(),
-      });
 
       await user.save();
 
-      res.status(200).json({
+      res.json({
         status: 'success',
         message: 'Principal withdrawal processed successfully',
         data: {
-          requestedAmount: amount,
-          fee: fee,
-          netAmount: netAmount,
-          newPrincipalBalance: user.wallets.principal.balance,
-          totalBalance: user.totalBalance,
+          amount,
+          platformFee,
+          gasFee,
+          netAmount,
+          newBalance: user.wallets.principal.balance,
         },
       });
     } catch (error) {
-      console.error('Principal withdrawal error:', error);
+      console.error('Error withdrawing principal:', error);
       res.status(500).json({
         status: 'error',
-        message: error.message || 'Failed to process principal withdrawal',
+        message: 'Failed to process principal withdrawal',
       });
     }
   },
 
-  // Add dummy income (for testing ROI simulation)
-  addDummyIncome: async (req, res) => {
+  // Calculate fees for a withdrawal
+  calculateFees: async (req, res) => {
     try {
-      const { amount, description } = req.body;
-
-      // Validate amount
-      if (!amount || amount < 1) {
+      const { amount } = req.body;
+      
+      if (!amount) {
         return res.status(400).json({
           status: 'error',
-          message: 'Minimum income amount is $1',
+          message: 'Amount is required',
         });
       }
 
-      if (amount > 1000) {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Maximum test income amount is $1,000',
-        });
-      }
+      const platformFee = amount * 0.05; // 5%
+      const gasFee = 5; // 5 USDT minimum
+      const totalFees = platformFee + gasFee;
+      const netAmount = amount - totalFees;
 
-      const user = await User.findById(req.user._id);
-      if (!user) {
-        return res.status(404).json({
-          status: 'error',
-          message: 'User not found',
-        });
-      }
-
-      // Add to income wallet
-      user.wallets.income.balance += amount;
-      user.wallets.income.totalEarned += amount;
-
-      // Add transaction record
-      user.transactions.push({
-        type: 'roi_credit',
-        amount: amount,
-        walletType: 'income',
-        description: description || `Test income credit of $${amount}`,
-        status: 'completed',
-        date: new Date(),
-      });
-
-      await user.save();
-
-      res.status(200).json({
+      res.json({
         status: 'success',
-        message: 'Dummy income added successfully',
         data: {
-          amount: amount,
-          newIncomeBalance: user.wallets.income.balance,
-          totalEarned: user.wallets.income.totalEarned,
-          totalBalance: user.totalBalance,
+          amount,
+          platformFee,
+          gasFee,
+          totalFees,
+          netAmount,
+          feePercentage: 5,
         },
       });
     } catch (error) {
-      console.error('Dummy income error:', error);
+      console.error('Error calculating fees:', error);
       res.status(500).json({
         status: 'error',
-        message: error.message || 'Failed to add dummy income',
+        message: 'Failed to calculate fees',
       });
     }
   },
 
-  // Get transaction history
-  getTransactionHistory: async (req, res) => {
+  // Get lock status
+  getLockStatus: async (req, res) => {
     try {
-      const { page = 1, limit = 20, type, walletType } = req.query;
       const user = await User.findById(req.user._id);
-
       if (!user) {
         return res.status(404).json({
           status: 'error',
@@ -311,156 +325,63 @@ const walletController = {
         });
       }
 
-      let transactions = [...user.transactions];
-
-      // Filter by type if specified
-      if (type) {
-        transactions = transactions.filter(tx => tx.type === type);
+      const now = new Date();
+      const lockExpiry = user.wallets.principal.lockExpiry;
+      const isLocked = user.wallets.principal.locked && lockExpiry && now < lockExpiry;
+      
+      let daysRemaining = 0;
+      if (isLocked) {
+        daysRemaining = Math.ceil((lockExpiry - now) / (1000 * 60 * 60 * 24));
       }
 
-      // Filter by wallet type if specified
-      if (walletType) {
-        transactions = transactions.filter(tx => tx.walletType === walletType);
-      }
-
-      // Sort by date (newest first)
-      transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      // Pagination
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + parseInt(limit);
-      const paginatedTransactions = transactions.slice(startIndex, endIndex);
-
-      // Calculate summary statistics
-      const summary = {
-        totalTransactions: transactions.length,
-        totalDeposits: transactions
-          .filter(tx => tx.type === 'deposit')
-          .reduce((sum, tx) => sum + tx.amount, 0),
-        totalWithdrawals: transactions
-          .filter(tx => tx.type === 'withdrawal')
-          .reduce((sum, tx) => sum + tx.amount, 0),
-        totalROI: transactions
-          .filter(tx => tx.type === 'roi_credit')
-          .reduce((sum, tx) => sum + tx.amount, 0),
-        totalReferralBonus: transactions
-          .filter(tx => tx.type === 'referral_bonus')
-          .reduce((sum, tx) => sum + tx.amount, 0),
-      };
-
-      res.status(200).json({
+      res.json({
         status: 'success',
         data: {
-          transactions: paginatedTransactions,
-          pagination: {
-            currentPage: parseInt(page),
-            totalPages: Math.ceil(transactions.length / limit),
-            totalTransactions: transactions.length,
-            hasNext: endIndex < transactions.length,
-            hasPrev: startIndex > 0,
-          },
-          summary,
+          locked: isLocked,
+          lockExpiry,
+          daysRemaining,
+          canWithdrawPrincipal: !isLocked,
         },
       });
     } catch (error) {
-      console.error('Transaction history error:', error);
+      console.error('Error getting lock status:', error);
       res.status(500).json({
         status: 'error',
-        message: 'Failed to fetch transaction history',
-      });
-    }
-  },
-
-  // Get wallet statistics
-  getWalletStats: async (req, res) => {
-    try {
-      const user = await User.findById(req.user._id);
-
-      if (!user) {
-        return res.status(404).json({
-          status: 'error',
-          message: 'User not found',
-        });
-      }
-
-      // Calculate various statistics
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-
-      const recentTransactions = user.transactions.filter(
-        tx => new Date(tx.date) >= thirtyDaysAgo
-      );
-
-      const weeklyTransactions = user.transactions.filter(
-        tx => new Date(tx.date) >= sevenDaysAgo
-      );
-
-      const stats = {
-        walletOverview: {
-          totalBalance: user.totalBalance,
-          principalBalance: user.wallets.principal.balance,
-          incomeBalance: user.wallets.income.balance,
-          lockedAmount: user.lockedBalance,
-          availableForWithdrawal: user.availableBalance,
-        },
-        
-        lifetimeStats: {
-          totalDeposited: user.wallets.principal.totalDeposited,
-          totalEarned: user.wallets.income.totalEarned,
-          totalWithdrawn: user.wallets.income.totalWithdrawn,
-          netProfit: user.wallets.income.totalEarned - user.wallets.income.totalWithdrawn,
-        },
-
-        recentActivity: {
-          thirtyDayDeposits: recentTransactions
-            .filter(tx => tx.type === 'deposit')
-            .reduce((sum, tx) => sum + tx.amount, 0),
-          thirtyDayWithdrawals: recentTransactions
-            .filter(tx => tx.type === 'withdrawal')
-            .reduce((sum, tx) => sum + tx.amount, 0),
-          thirtyDayROI: recentTransactions
-            .filter(tx => tx.type === 'roi_credit')
-            .reduce((sum, tx) => sum + tx.amount, 0),
-          
-          weeklyDeposits: weeklyTransactions
-            .filter(tx => tx.type === 'deposit')
-            .reduce((sum, tx) => sum + tx.amount, 0),
-          weeklyWithdrawals: weeklyTransactions
-            .filter(tx => tx.type === 'withdrawal')
-            .reduce((sum, tx) => sum + tx.amount, 0),
-          weeklyROI: weeklyTransactions
-            .filter(tx => tx.type === 'roi_credit')
-            .reduce((sum, tx) => sum + tx.amount, 0),
-        },
-
-        projections: {
-          dailyROI: user.dailyEarnings,
-          weeklyROI: user.dailyEarnings * 7,
-          monthlyROI: user.dailyEarnings * 30,
-          currentROIRate: user.programData.enhancedROI.qualified ? 
-            user.programData.enhancedROI.rate : 0.75,
-        },
-
-        lockStatus: {
-          principalLocked: user.wallets.principal.locked,
-          lockExpiry: user.wallets.principal.lockExpiry,
-          daysUntilUnlock: user.wallets.principal.locked && user.wallets.principal.lockExpiry ? 
-            Math.max(0, Math.ceil((user.wallets.principal.lockExpiry - new Date()) / (1000 * 60 * 60 * 24))) : 0,
-        },
-      };
-
-      res.status(200).json({
-        status: 'success',
-        data: stats,
-      });
-    } catch (error) {
-      console.error('Wallet stats error:', error);
-      res.status(500).json({
-        status: 'error',
-        message: 'Failed to fetch wallet statistics',
+        message: 'Failed to get lock status',
       });
     }
   },
 };
 
-module.exports = walletController; 
+// Helper function to check enhanced ROI qualification
+async function checkEnhancedROIQualification(userId) {
+  try {
+    const user = await User.findById(userId);
+    const totalStake = user.wallets.principal.totalDeposited;
+    
+    // Check if user has >= $5,000 total stake
+    if (totalStake >= 5000) {
+      // Check for qualified referrals (>= $1,000 stake)
+      const qualifiedReferrals = await User.countDocuments({
+        referredBy: userId,
+        'wallets.principal.totalDeposited': { $gte: 1000 }
+      });
+
+      if (qualifiedReferrals >= 1) {
+        // Update all active stakes to enhanced ROI
+        await Stake.updateMany(
+          { userId: userId, status: 'active' },
+          { 
+            roiRate: 0.0085, // 0.85%
+            enhancedROI: true,
+            dailyROI: { $mul: 0.0085 / 0.0075 } // Update daily ROI proportionally
+          }
+        );
+      }
+    }
+  } catch (error) {
+    console.error('Error checking enhanced ROI qualification:', error);
+  }
+}
+
+module.exports = walletController;

@@ -9,6 +9,9 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const walletRoutes = require('./routes/wallet');
+const teamRoutes = require('./routes/team');
+const stakingRoutes = require('./routes/staking');
+const { processROI } = require('./jobs/processROI');
 
 const app = express();
 
@@ -47,6 +50,9 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => {
   console.log('✅ Connected to MongoDB Atlas');
   console.log(`📦 Database: ${process.env.DATABASE_NAME}`);
+  
+  // Initialize cron jobs after database connection
+  processROI();
 })
 .catch((error) => {
   console.error('❌ MongoDB connection error:', error);
@@ -57,6 +63,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/staking', stakingRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

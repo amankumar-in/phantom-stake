@@ -491,14 +491,14 @@ export default function HowItWorks() {
             <div className="bg-black/20 rounded-lg p-6 border border-green-500/30">
               <div className="text-center mb-4">
                 <div className="text-4xl mb-2">⚖️</div>
-                <h3 className="text-xl font-bold text-green-300">Binary System</h3>
+                <h3 className="text-xl font-bold text-green-300">Team Balance Bonus</h3>
               </div>
               
               <div className="space-y-3 text-gray-300 text-sm">
                 <p>• You have Left Team and Right Team</p>
-                <p>• When both sides balance</p>
-                <p>• You create "matching pairs"</p>
-                <p>• Earn 8-12% monthly bonuses</p>
+                <p>• When both sides grow equally</p>
+                <p>• You earn monthly bonuses</p>
+                <p>• 8-12% based on your rank</p>
               </div>
               
               <div className="mt-4 bg-green-900/30 rounded-lg p-3">
