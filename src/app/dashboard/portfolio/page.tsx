@@ -326,7 +326,7 @@ export default function InvestPage() {
             </div>
             
             {/* Add Investment Button for users with existing stakes */}
-            {investData?.stakes?.length > 0 && (
+            {(investData?.stakes?.length ?? 0) > 0 && (
               <div className="mt-6 text-center">
                 <button 
                   onClick={() => window.location.href = '/dashboard/wallet'}
