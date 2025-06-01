@@ -30,6 +30,7 @@ interface BinaryTreeVisualizationProps {
   allMembers: TeamMember[];
   maxInitialLevels?: number;
   onMemberSelect?: (member: TeamMember) => void;
+  onLoadMoreLevels?: (parentId: string) => Promise<TeamMember[]>;
 }
 
 interface HoverTooltip {
