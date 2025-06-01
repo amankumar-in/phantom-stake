@@ -4,7 +4,8 @@ import { Inter } from "next/font/google";
 // import { Header } from "@/components/Header"; // Header is now in MainLayoutWrapper
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
-import MainLayoutWrapper from "@/components/MainLayoutWrapper"; // Added import
+import MainLayoutWrapper from "@/components/MainLayoutWrapper";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,12 +23,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          <MainLayoutWrapper>
-            {children}
-          </MainLayoutWrapper>
-          <Footer />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <MainLayoutWrapper>
+              {children}
+            </MainLayoutWrapper>
+            <Footer />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

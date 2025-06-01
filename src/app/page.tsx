@@ -6,6 +6,7 @@ import { TextAnimate } from "@/components/ui/text-animate";
 import { PulsatingButton } from "@/components/ui/pulsating-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
@@ -113,20 +114,23 @@ export default function Home() {
                   transition={{ duration: 0.8, delay: 0.4 }}
                   className="mt-6 flex flex-col sm:flex-row gap-3 justify-center"
                 >
-                  <PulsatingButton 
-                    pulseColor="#10b981"
-                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-purple-600 text-white font-semibold text-base"
-                  >
-                    🚀 Start Earning Now
-                  </PulsatingButton>
-                  
-                  <ShimmerButton
-                    shimmerColor="#a855f7"
-                    background="rgba(139, 69, 219, 0.1)"
-                    className="px-6 py-3 border-purple-400 text-purple-400 font-semibold text-base hover:text-white"
-                  >
-                    📊 Calculate Returns
-                  </ShimmerButton>
+                  <Link href="/register">
+                    <PulsatingButton 
+                      pulseColor="#10b981"
+                      className="px-6 py-3 bg-gradient-to-r from-green-600 to-purple-600 text-white font-semibold text-base w-full sm:w-auto"
+                    >
+                      🚀 Start Earning Now
+                    </PulsatingButton>
+                  </Link>
+                  <Link href="/calculator">
+                    <ShimmerButton
+                      shimmerColor="#a855f7"
+                      background="rgba(139, 69, 219, 0.1)"
+                      className="px-6 py-3 border-purple-400 text-purple-400 font-semibold text-base hover:text-white w-full sm:w-auto"
+                    >
+                      📊 Calculate Returns
+                    </ShimmerButton>
+                  </Link>
                 </motion.div>
               </motion.div>
 
@@ -244,12 +248,14 @@ export default function Home() {
                     <div className="text-white font-bold text-sm">Ready to Join?</div>
                     <div className="text-green-200 text-xs">0.75% daily • $50 minimum</div>
                   </div>
-                  <PulsatingButton 
-                    pulseColor="#10b981"
-                    className="px-4 py-2 bg-white text-green-600 font-semibold text-sm rounded-xl"
-                  >
-                    Join Now
-                  </PulsatingButton>
+                  <Link href="/register">
+                    <PulsatingButton 
+                      pulseColor="#10b981"
+                      className="px-4 py-2 bg-white text-green-600 font-semibold text-sm rounded-xl"
+                    >
+                      Join Now
+                    </PulsatingButton>
+                  </Link>
                 </div>
               </div>
             </motion.div>
@@ -262,32 +268,36 @@ export default function Home() {
               className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/20 rounded-xl p-4 max-w-4xl mx-auto backdrop-blur-sm"
             >
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-green-600/20 border border-green-500/30 rounded-lg p-3 text-center hover:bg-green-600/30 transition-colors"
-                >
-                  <div className="text-green-400 font-semibold text-sm">🎯 Get Started</div>
-                  <div className="text-white text-xs">Join Program I</div>
-                </motion.button>
-                
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-3 text-center hover:bg-blue-600/30 transition-colors"
-                >
-                  <div className="text-blue-400 font-semibold text-sm">📱 Calculator</div>
-                  <div className="text-white text-xs">See Your Profits</div>
-                </motion.button>
-                
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-3 text-center hover:bg-purple-600/30 transition-colors"
-                >
-                  <div className="text-purple-400 font-semibold text-sm">💡 Learn More</div>
-                  <div className="text-white text-xs">How It Works</div>
-                </motion.button>
+                <Link href="/register" className="w-full">
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full bg-green-600/20 border border-green-500/30 rounded-lg p-3 text-center hover:bg-green-600/30 transition-colors"
+                  >
+                    <div className="text-green-400 font-semibold text-sm">🎯 Get Started</div>
+                    <div className="text-white text-xs">Join Program I</div>
+                  </motion.button>
+                </Link>
+                <Link href="/calculator" className="w-full">
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full bg-blue-600/20 border border-blue-500/30 rounded-lg p-3 text-center hover:bg-blue-600/30 transition-colors"
+                  >
+                    <div className="text-blue-400 font-semibold text-sm">📱 Calculator</div>
+                    <div className="text-white text-xs">See Your Profits</div>
+                  </motion.button>
+                </Link>
+                <Link href="/how-it-works" className="w-full">
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full bg-purple-600/20 border border-purple-500/30 rounded-lg p-3 text-center hover:bg-purple-600/30 transition-colors"
+                  >
+                    <div className="text-purple-400 font-semibold text-sm">💡 Learn More</div>
+                    <div className="text-white text-xs">How It Works</div>
+                  </motion.button>
+                </Link>
               </div>
             </motion.div>
 
@@ -304,49 +314,57 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <motion.div 
-                  className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300 cursor-pointer"
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="text-3xl mb-2">⚡</div>
-                  <div className="text-sm font-bold text-blue-300 mb-1">Arbitrage</div>
-                  <div className="text-xs text-gray-400 mb-2">Cross-exchange trading</div>
-                  <div className="text-lg font-bold text-white">$180K</div>
-                  <div className="text-xs text-blue-300">Daily profit</div>
-                </motion.div>
+                <Link href="/how-it-works">
+                  <motion.div 
+                    className="bg-blue-900/30 border border-blue-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300 cursor-pointer h-full"
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="text-3xl mb-2">⚡</div>
+                    <div className="text-sm font-bold text-blue-300 mb-1">Arbitrage</div>
+                    <div className="text-xs text-gray-400 mb-2">Cross-exchange trading</div>
+                    <div className="text-lg font-bold text-white">$180K</div>
+                    <div className="text-xs text-blue-300">Daily profit</div>
+                  </motion.div>
+                </Link>
 
-                <motion.div 
-                  className="bg-green-900/30 border border-green-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300 cursor-pointer"
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="text-3xl mb-2">🌉</div>
-                  <div className="text-sm font-bold text-green-300 mb-1">Bridging</div>
-                  <div className="text-xs text-gray-400 mb-2">Cross-chain profits</div>
-                  <div className="text-lg font-bold text-white">$150K</div>
-                  <div className="text-xs text-green-300">Daily profit</div>
-                </motion.div>
+                <Link href="/how-it-works">
+                  <motion.div 
+                    className="bg-green-900/30 border border-green-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300 cursor-pointer h-full"
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="text-3xl mb-2">🌉</div>
+                    <div className="text-sm font-bold text-green-300 mb-1">Bridging</div>
+                    <div className="text-xs text-gray-400 mb-2">Cross-chain profits</div>
+                    <div className="text-lg font-bold text-white">$150K</div>
+                    <div className="text-xs text-green-300">Daily profit</div>
+                  </motion.div>
+                </Link>
 
-                <motion.div 
-                  className="bg-purple-900/30 border border-purple-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300 cursor-pointer"
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="text-3xl mb-2">🚜</div>
-                  <div className="text-sm font-bold text-purple-300 mb-1">DeFi Farming</div>
-                  <div className="text-xs text-gray-400 mb-2">Yield optimization</div>
-                  <div className="text-lg font-bold text-white">$120K</div>
-                  <div className="text-xs text-purple-300">Daily profit</div>
-                </motion.div>
+                <Link href="/how-it-works">
+                  <motion.div 
+                    className="bg-purple-900/30 border border-purple-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300 cursor-pointer h-full"
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="text-3xl mb-2">🚜</div>
+                    <div className="text-sm font-bold text-purple-300 mb-1">DeFi Farming</div>
+                    <div className="text-xs text-gray-400 mb-2">Yield optimization</div>
+                    <div className="text-lg font-bold text-white">$120K</div>
+                    <div className="text-xs text-purple-300">Daily profit</div>
+                  </motion.div>
+                </Link>
 
-                <motion.div 
-                  className="bg-yellow-900/30 border border-yellow-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300 cursor-pointer"
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="text-3xl mb-2">🔥</div>
-                  <div className="text-sm font-bold text-yellow-300 mb-1">MEV Trading</div>
-                  <div className="text-xs text-gray-400 mb-2">Flash loan strategies</div>
-                  <div className="text-lg font-bold text-white">$100K</div>
-                  <div className="text-xs text-yellow-300">Daily profit</div>
-                </motion.div>
+                <Link href="/how-it-works">
+                  <motion.div 
+                    className="bg-yellow-900/30 border border-yellow-500/30 rounded-xl p-4 text-center hover:scale-105 transition-transform duration-300 cursor-pointer h-full"
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className="text-3xl mb-2">🔥</div>
+                    <div className="text-sm font-bold text-yellow-300 mb-1">MEV Trading</div>
+                    <div className="text-xs text-gray-400 mb-2">Flash loan strategies</div>
+                    <div className="text-lg font-bold text-white">$100K</div>
+                    <div className="text-xs text-yellow-300">Daily profit</div>
+                  </motion.div>
+                </Link>
               </div>
             </motion.div>
 
@@ -357,20 +375,23 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 1.1 }}
               className="flex flex-col sm:flex-row gap-4 justify-center mt-8"
             >
-              <PulsatingButton 
-                pulseColor="#10b981"
-                className="px-8 py-4 bg-gradient-to-r from-green-600 to-purple-600 text-white font-semibold text-lg"
-              >
-                🚀 Calculate My Profits
-              </PulsatingButton>
-              
-              <ShimmerButton
-                shimmerColor="#a855f7"
-                background="rgba(139, 69, 219, 0.1)"
-                className="px-8 py-4 border-purple-400 text-purple-400 font-semibold text-lg hover:text-white"
-              >
-                📈 See Live Strategy
-              </ShimmerButton>
+              <Link href="/calculator">
+                <PulsatingButton 
+                  pulseColor="#10b981"
+                  className="px-8 py-4 bg-gradient-to-r from-green-600 to-purple-600 text-white font-semibold text-lg w-full sm:w-auto"
+                >
+                  🚀 Calculate My Profits
+                </PulsatingButton>
+              </Link>
+              <Link href="/how-it-works">
+                <ShimmerButton
+                  shimmerColor="#a855f7"
+                  background="rgba(139, 69, 219, 0.1)"
+                  className="px-8 py-4 border-purple-400 text-purple-400 font-semibold text-lg hover:text-white w-full sm:w-auto"
+                >
+                  📈 See Live Strategy
+                </ShimmerButton>
+              </Link>
             </motion.div>
 
             {/* Quick Trust Signals */}
@@ -695,12 +716,14 @@ export default function Home() {
                         
                         {program.status === 'coming-soon' && (
                           <div className="mt-4">
-                            <PulsatingButton 
-                              pulseColor="#10b981"
-                              className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white text-sm py-2"
-                            >
-                              Prepare to Join
-                            </PulsatingButton>
+                            <Link href="/register">
+                              <PulsatingButton 
+                                pulseColor="#10b981"
+                                className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white text-sm py-2"
+                              >
+                                Prepare to Join
+                              </PulsatingButton>
+                            </Link>
                           </div>
                         )}
                       </div>
@@ -891,21 +914,24 @@ export default function Home() {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                  <PulsatingButton 
-                    pulseColor="#10b981"
-                    className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold text-lg"
-                  >
-                    Calculate My Returns
-                  </PulsatingButton>
-                  
-                  <ShimmerButton
-                    shimmerColor="#a855f7"
-                    background="rgba(139, 69, 219, 0.1)"
-                    borderRadius="8px"
-                    className="px-8 py-4 text-purple-400 border-purple-500/30 font-semibold text-lg"
-                  >
-                    Learn Our Strategy
-                  </ShimmerButton>
+                  <Link href="/calculator">
+                    <PulsatingButton 
+                      pulseColor="#10b981"
+                      className="px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold text-lg w-full sm:w-auto"
+                    >
+                      Calculate My Returns
+                    </PulsatingButton>
+                  </Link>
+                  <Link href="/how-it-works">
+                    <ShimmerButton
+                      shimmerColor="#a855f7"
+                      background="rgba(139, 69, 219, 0.1)"
+                      borderRadius="8px"
+                      className="px-8 py-4 text-purple-400 border-purple-500/30 font-semibold text-lg w-full sm:w-auto"
+                    >
+                      Learn Our Strategy
+                    </ShimmerButton>
+                  </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-400">

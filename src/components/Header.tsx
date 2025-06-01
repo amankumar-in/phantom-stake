@@ -7,11 +7,14 @@ import { PulsatingButton } from "@/components/ui/pulsating-button";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Sun, Moon } from 'lucide-react';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -72,7 +75,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <nav className="flex items-center space-x-6">
+            <nav className="flex items-center space-x-4">
               {user ? (
                 // Authenticated navigation
                 <>
@@ -131,6 +134,15 @@ export function Header() {
                 </>
               )}
             </nav>
+
+            {/* Theme Toggle Button - Desktop */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md text-gray-300 hover:text-purple-400 hover:bg-gray-800 transition-colors"
+              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            >
+              {theme === 'light' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
 
             {user ? (
               // Authenticated user menu
@@ -313,6 +325,15 @@ export function Header() {
                   >
                     👤 Profile
                   </Link>
+
+                  {/* Theme Toggle - Mobile Menu */}
+                  <button 
+                    onClick={() => { toggleTheme(); setIsMenuOpen(false); }}
+                    className="w-full flex items-center justify-between py-2 text-gray-300 hover:text-white transition-colors duration-200"
+                  >
+                    <span>{theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
+                    {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                  </button>
                 </>
               ) : (
                 // Public mobile navigation
@@ -345,6 +366,15 @@ export function Header() {
                   >
                     FAQ
                   </Link>
+
+                  {/* Theme Toggle - Mobile Menu */}
+                  <button 
+                    onClick={() => { toggleTheme(); setIsMenuOpen(false); }}
+                    className="w-full flex items-center justify-between py-2 text-gray-300 hover:text-white transition-colors duration-200"
+                  >
+                    <span>{theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
+                    {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                  </button>
                 </>
               )}
 
