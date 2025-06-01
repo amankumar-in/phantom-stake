@@ -183,11 +183,11 @@ export default function InvestPage() {
                       ${investData?.enhancedROIStatus?.totalStakeRequired?.toLocaleString() || '5,000'} USDT
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      investData?.enhancedROIStatus?.currentTotalStake >= (investData?.enhancedROIStatus?.totalStakeRequired || 5000)
+                      (investData?.enhancedROIStatus?.currentTotalStake || 0) >= (investData?.enhancedROIStatus?.totalStakeRequired || 5000)
                         ? 'bg-green-900/50 text-green-300' 
                         : 'bg-red-900/50 text-red-300'
                     }`}>
-                      {investData?.enhancedROIStatus?.currentTotalStake >= (investData?.enhancedROIStatus?.totalStakeRequired || 5000) ? '✅' : '❌'}
+                      {(investData?.enhancedROIStatus?.currentTotalStake || 0) >= (investData?.enhancedROIStatus?.totalStakeRequired || 5000) ? '✅' : '❌'}
                     </span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
