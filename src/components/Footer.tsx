@@ -4,8 +4,12 @@ import { TextAnimate } from "@/components/ui/text-animate";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from 'next/navigation';
 
 export function Footer() {
+  const pathname = usePathname();
+  const isDashboardPage = pathname.startsWith('/dashboard');
+
   const currentPhase = {
     name: "Program I (Founders' Program)",
     status: "Starting Soon",
@@ -21,7 +25,7 @@ export function Footer() {
 
   return (
     <motion.footer 
-      className="bg-black border-t border-purple-500/20"
+      className={`bg-black border-t border-purple-500/20 ${isDashboardPage ? 'lg:pl-64' : ''}`}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.6 }}

@@ -226,7 +226,7 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="relative p-8">
+      <div className="relative p-8 max-w-7xl mx-auto">
         {/* Floating particles */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-20 w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
@@ -267,42 +267,9 @@ export default function Dashboard() {
                   💰 Make Deposit
                 </PulsatingButton>
                 
-                <ShimmerButton
-                  shimmerColor="#a855f7"
-                  background="rgba(139, 69, 219, 0.1)"
-                  className="px-4 py-2 border-purple-400 text-purple-400 font-semibold hover:text-white"
-                  onClick={() => router.push("/dashboard/wallet")}
-                >
-                  💼 Manage Wallet
-                </ShimmerButton>
+                
 
-                {/* Temporary Reset Button */}
-                <button
-                  onClick={async () => {
-                    if (confirm('This will reset all your data to clean zeros. Continue?')) {
-                      try {
-                        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/reset`, {
-                          method: 'POST',
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                          },
-                        });
-                        if (response.ok) {
-                          alert('Data reset successfully!');
-                          fetchDashboardData();
-                        } else {
-                          alert('Reset failed');
-                        }
-                      } catch {
-                      alert('Reset error');
-                      }
-                      }
-                      }}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg"
-                >
-                  🗑️ Reset Fake Data
-                </button>
+                
 
                 {/* Process ROI Button (Temporary for Testing) */}
                 <button
