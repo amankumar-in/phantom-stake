@@ -30,7 +30,6 @@ interface BinaryTreeVisualizationProps {
   allMembers: TeamMember[];
   maxInitialLevels?: number;
   onMemberSelect?: (member: TeamMember) => void;
-  onLoadMoreLevels?: (parentId: string) => Promise<TeamMember[]>;
 }
 
 interface HoverTooltip {
@@ -43,14 +42,12 @@ interface HoverTooltip {
 const NODE_WIDTH = 180;
 const NODE_HEIGHT = 100;
 const LEVEL_HEIGHT = 150;
-const NODE_SPACING_X = 50;
 
 const BinaryTreeVisualization: React.FC<BinaryTreeVisualizationProps> = ({
   rootMember,
   allMembers,
   maxInitialLevels = 5,
-  onMemberSelect,
-  onLoadMoreLevels
+  onMemberSelect
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);

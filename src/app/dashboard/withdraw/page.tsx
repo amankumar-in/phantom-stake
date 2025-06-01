@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { AlertCircle, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
@@ -37,7 +37,7 @@ export default function WithdrawPage() {
   const [withdrawalHistory, setWithdrawalHistory] = useState<WithdrawalRequest[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<WithdrawalRequest | null>(null);
 
-  const fetchWalletData = async () => {
+  const fetchWalletData = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/wallet/details`, {
         headers: {
@@ -52,9 +52,9 @@ export default function WithdrawPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const fetchWithdrawalHistory = async () => {
+  const fetchWithdrawalHistory = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/wallet/withdrawals`, {
         headers: {
@@ -67,7 +67,7 @@ export default function WithdrawPage() {
     } catch (error) {
       console.error('Error fetching withdrawal history:', error);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchWalletData();
@@ -443,7 +443,7 @@ export default function WithdrawPage() {
                       <span className="text-white">-$5.00</span>
                     </div>
                     <div className="border-t border-gray-600 pt-2 flex justify-between font-semibold">
-                      <span className="text-gray-400">You'll Receive:</span>
+                      <span className="text-gray-400">You&apos;ll Receive:</span>
                       <span className="text-green-400">
                         ${(parseFloat(withdrawAmount) - (parseFloat(withdrawAmount) * 0.05) - 5).toFixed(2)}
                       </span>

@@ -129,7 +129,7 @@ export default function HowItWorks() {
           <h2 className="text-3xl font-bold text-white mb-8 text-center">💼 How We Generate Your Returns</h2>
           <p className="text-gray-400 text-center mb-8 text-lg">
             You might wonder: "How can Phantom Stake afford to pay 0.75% daily returns?" 
-            <br />Here's exactly how our professional trading team makes money in the crypto markets:
+            <br />Here&apos;s exactly how our professional trading team makes money in the crypto markets:
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -254,7 +254,7 @@ export default function HowItWorks() {
         >
           <h2 className="text-3xl font-bold text-white mb-8 text-center">📊 Our Daily Profit Breakdown</h2>
           <p className="text-gray-400 text-center mb-8">
-            Here's how our $50 million trading fund generates daily profits:
+            Here&apos;s how our $50 million trading fund generates daily profits:
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -356,13 +356,13 @@ export default function HowItWorks() {
           {/* Active Step Content */}
           <div className="bg-gray-900/50 border border-purple-500/30 rounded-xl p-8 backdrop-blur-sm">
             <div className="text-center mb-6">
-              <div className="text-6xl mb-4">{steps[activeStep].icon}</div>
-              <h3 className="text-2xl font-bold text-white mb-2">{steps[activeStep].title}</h3>
-              <p className="text-gray-400 text-lg">{steps[activeStep].description}</p>
+              <div className="text-6xl mb-4">{step.icon}</div>
+              <h3 className="text-2xl font-bold text-white mb-2">{step.title}</h3>
+              <p className="text-gray-400 text-lg">{step.description}</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {steps[activeStep].details.map((detail, index) => (
+              {step.details.map((detail, index) => (
                 <div key={index} className="bg-black/20 rounded-lg p-4 border border-gray-600">
                   <p className="text-gray-300">• {detail}</p>
                 </div>
@@ -598,7 +598,7 @@ export default function HowItWorks() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.1 }}
         >
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">📝 Complete Example: John's Journey</h2>
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">📝 Complete Example: John&apos;s Journey</h2>
           
           <div className="space-y-6">
             {/* Day 1 */}
