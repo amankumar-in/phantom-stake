@@ -167,14 +167,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return data;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error: unknown) {
-      console.error('❌ API Call Error:', error);
-      if (error instanceof TypeError && error.message.includes('fetch')) {
+    } catch (_error: unknown) {
+      console.error('❌ API Call Error:', _error);
+      if (_error instanceof TypeError && _error.message.includes('fetch')) {
         throw new Error('Unable to connect to server. Please check if the backend is running on port 5100.');
       }
-      if (error instanceof Error) {
-        throw error;
+      if (_error instanceof Error) {
+        throw _error;
       }
       throw new Error('An unknown error occurred');
     }
