@@ -41,6 +41,8 @@ const transactionSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
+  canDeposit: { type: Boolean, default: true },
+  canWithdraw: { type: Boolean, default: true },
   // Basic Information
   username: {
     type: String,
@@ -120,17 +122,35 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0,
       },
-      compoundingStart: {
+      lastWithdrawalDate: {
         type: Date,
         default: null,
       },
-      compoundingRate: {
+      daysWithoutWithdrawal: {
         type: Number,
         default: 0,
       },
-      lastCompoundDate: {
-        type: Date,
-        default: null,
+      compounding: {
+        active: {
+          type: Boolean,
+          default: false,
+        },
+        startDate: {
+          type: Date,
+          default: null,
+        },
+        rate: {
+          type: Number,
+          default: 0.01, // 1.0% for Program I
+        },
+        totalCompounded: {
+          type: Number,
+          default: 0,
+        },
+        lastCompoundDate: {
+          type: Date,
+          default: null,
+        },
       },
     },
   },
@@ -463,6 +483,11 @@ userSchema.pre('save', async function(next) {
 // Method to compare passwords
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Method to set password
+userSchema.methods.setPassword = async function(newPassword) {
+  this.password = newPassword; // Let pre('save') hook hash it
 };
 
 // Method to generate JWT token

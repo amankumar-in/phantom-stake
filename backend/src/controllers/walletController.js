@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Stake = require('../models/Stake');
 const mlmService = require('../services/mlmService');
+const WithdrawalRequest = require('../models/WithdrawalRequest');
 
 const walletController = {
   // Get complete wallet details
@@ -22,19 +23,37 @@ const walletController = {
       // Calculate today's ROI
       const todayROI = user.wallets.principal.balance * 0.0075; // 0.75% daily
 
-      // Get recent transactions (mock for now)
-      const transactions = [
-        {
-          type: 'deposit',
-          amount: user.wallets.principal.totalDeposited,
-          date: user.createdAt,
-        },
-        {
-          type: 'roi',
-          amount: todayROI,
-          date: new Date(),
-        }
-      ].filter(tx => tx.amount > 0);
+      // Get recent transactions from Transaction model
+      let transactions = [];
+      try {
+        const Transaction = require('../models/Transaction');
+        const recentTransactions = await Transaction.find({ 
+          userId: user._id 
+        })
+        .sort({ createdAt: -1 })
+        .limit(10);
+        
+        transactions = recentTransactions.map(tx => ({
+          type: tx.type,
+          amount: tx.amount,
+          date: tx.createdAt,
+        }));
+      } catch (txError) {
+        console.error('Error fetching transactions:', txError);
+        // Fall back to basic transactions
+        transactions = [
+          {
+            type: 'deposit',
+            amount: user.wallets.principal.totalDeposited,
+            date: user.createdAt,
+          },
+          {
+            type: 'roi',
+            amount: todayROI,
+            date: new Date(),
+          }
+        ].filter(tx => tx.amount > 0);
+      }
 
       const walletData = {
         principal: {
@@ -48,6 +67,13 @@ const walletController = {
           totalEarned: user.wallets.income.totalEarned,
           totalWithdrawn: user.wallets.income.totalWithdrawn,
           todayROI: todayROI,
+          daysWithoutWithdrawal: user.wallets.income.daysWithoutWithdrawal || 0,
+          compounding: {
+            active: user.wallets.income.compounding?.active || false,
+            startDate: user.wallets.income.compounding?.startDate,
+            rate: user.wallets.income.compounding?.rate || 0.01,
+            totalCompounded: user.wallets.income.compounding?.totalCompounded || 0,
+          }
         },
         daysActive,
         transactions,
@@ -100,6 +126,18 @@ const walletController = {
         });
       }
 
+      // Check for enhanced ROI qualification first
+      const isEnhancedQualified = await Stake.checkUserEnhancedROIQualification(user._id);
+      
+      // Determine the ROI rate for this new stake
+      let roiRate = 0.0075; // Base 0.75% for Program I
+      let isEnhancedROI = false;
+      
+      if (isEnhancedQualified) {
+        roiRate = 0.0085; // Enhanced 0.85% for qualified users
+        isEnhancedROI = true;
+      }
+
       // Add to principal wallet
       user.wallets.principal.balance += amount;
       user.wallets.principal.totalDeposited += amount;
@@ -115,15 +153,30 @@ const walletController = {
         userId: user._id,
         amount: amount,
         currency: 'USDT',
-        roiRate: 0.0075, // 0.75% daily (will be updated if enhanced ROI qualifies)
+        roiRate: 0.0075, // Always store base rate
+        actualROIRate: roiRate, // The rate this stake actually earns
+        isEnhancedROI: isEnhancedROI, // Whether this stake gets enhanced rate
         lockPeriod: 180, // 6 months in days
         status: 'active',
-        dailyROI: amount * 0.0075,
-        enhancedROI: false, // Will be updated after checking qualifications
+        dailyROI: amount * roiRate, // Calculate based on actual rate
+        enhancedROI: {
+          qualified: isEnhancedQualified,
+          rate: 0.0085,
+          qualificationDate: isEnhancedQualified ? new Date() : null
+        }
       });
 
       await stake.save();
       await user.save();
+
+      // Add to leadership pool
+      try {
+        const LeadershipPool = require('../models/LeadershipPool');
+        await LeadershipPool.addDeposit(amount, 'I');
+      } catch (poolError) {
+        console.error('Leadership pool error:', poolError);
+        // Continue even if pool update fails
+      }
 
       // Trigger MLM calculations
       try {
@@ -136,9 +189,6 @@ const walletController = {
         console.error('MLM processing error:', mlmError);
         // Continue even if MLM processing fails - deposit is already saved
       }
-
-      // Check for enhanced ROI qualification (can be async)
-      checkEnhancedROIQualification(user._id);
 
       res.json({
         status: 'success',
@@ -162,12 +212,19 @@ const walletController = {
   // Withdraw from income wallet
   withdrawIncome: async (req, res) => {
     try {
-      const { amount } = req.body;
+      const { amount, walletAddress, network = 'ETH' } = req.body;
       
       if (!amount || amount < 1000) {
         return res.status(400).json({
           status: 'error',
           message: 'Minimum withdrawal is 1,000 USDT',
+        });
+      }
+
+      if (!walletAddress || !/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Valid Ethereum wallet address is required',
         });
       }
 
@@ -187,33 +244,76 @@ const walletController = {
       }
 
       // Calculate fees
-      const platformFee = amount * 0.05; // 5%
-      const gasFee = 5; // 5 USDT minimum
-      const totalFees = platformFee + gasFee;
-      const netAmount = amount - totalFees;
+      const feeDetails = WithdrawalRequest.calculateFees(amount);
 
-      // Update balances
+      // Create withdrawal request
+      const withdrawalRequest = new WithdrawalRequest({
+        userId: user._id,
+        amount,
+        fees: {
+          platform: feeDetails.platform,
+          gas: feeDetails.gas,
+          total: feeDetails.total,
+        },
+        netAmount: feeDetails.netAmount,
+        walletAddress,
+        network,
+        status: 'pending',
+        balanceSnapshot: {
+          beforeWithdrawal: user.wallets.income.balance,
+          afterWithdrawal: user.wallets.income.balance - amount,
+        },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      });
+
+      await withdrawalRequest.save();
+
+      // Update balance immediately
       user.wallets.income.balance -= amount;
       user.wallets.income.totalWithdrawn += amount;
 
+      // Break compounding on withdrawal
+      const compoundingService = require('../services/compoundingService');
+      await compoundingService.breakCompounding(user._id);
+
       await user.save();
+
+      // Create a pending transaction record
+      const Transaction = require('../models/Transaction');
+      await Transaction.create({
+        userId: user._id,
+        type: 'withdrawal_request',
+        category: 'income',
+        amount: -amount,
+        description: `Withdrawal request for ${amount} USDT (Pending approval)`,
+        relatedId: withdrawalRequest._id,
+        status: 'pending',
+      });
 
       res.json({
         status: 'success',
-        message: 'Withdrawal processed successfully',
+        message: 'Withdrawal request submitted successfully',
         data: {
+          requestId: withdrawalRequest._id,
           amount,
-          platformFee,
-          gasFee,
-          netAmount,
+          platformFee: feeDetails.platform,
+          gasFee: feeDetails.gas,
+          netAmount: feeDetails.netAmount,
           newBalance: user.wallets.income.balance,
+          status: 'pending',
+          estimatedProcessingTime: '24-48 hours',
+          compoundingStatus: {
+            active: false,
+            message: 'Compounding has been reset due to withdrawal'
+          }
         },
       });
     } catch (error) {
-      console.error('Error withdrawing income:', error);
+      console.error('Error processing withdrawal request:', error);
       res.status(500).json({
         status: 'error',
-        message: 'Failed to process withdrawal',
+        message: 'Failed to process withdrawal request',
       });
     }
   },
@@ -348,6 +448,136 @@ const walletController = {
       res.status(500).json({
         status: 'error',
         message: 'Failed to get lock status',
+      });
+    }
+  },
+
+  // Get withdrawal history
+  getWithdrawalHistory: async (req, res) => {
+    try {
+      const { status, limit = 10, page = 1 } = req.query;
+      
+      const query = { userId: req.user._id };
+      if (status) {
+        query.status = status;
+      }
+      
+      const skip = (page - 1) * limit;
+      
+      const withdrawals = await WithdrawalRequest.find(query)
+        .sort({ createdAt: -1 })
+        .limit(parseInt(limit))
+        .skip(skip)
+        .populate('processedBy', 'username firstName lastName');
+      
+      const total = await WithdrawalRequest.countDocuments(query);
+      
+      res.json({
+        status: 'success',
+        data: {
+          withdrawals,
+          pagination: {
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            pages: Math.ceil(total / limit),
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Error getting withdrawal history:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to get withdrawal history',
+      });
+    }
+  },
+
+  // Get withdrawal request details
+  getWithdrawalRequest: async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      
+      const withdrawal = await WithdrawalRequest.findOne({
+        _id: requestId,
+        userId: req.user._id,
+      }).populate('processedBy', 'username firstName lastName');
+      
+      if (!withdrawal) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Withdrawal request not found',
+        });
+      }
+      
+      res.json({
+        status: 'success',
+        data: withdrawal,
+      });
+    } catch (error) {
+      console.error('Error getting withdrawal request:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to get withdrawal request',
+      });
+    }
+  },
+
+  // Cancel withdrawal request (only if pending)
+  cancelWithdrawalRequest: async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      
+      const withdrawal = await WithdrawalRequest.findOne({
+        _id: requestId,
+        userId: req.user._id,
+        status: 'pending',
+      });
+      
+      if (!withdrawal) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Pending withdrawal request not found',
+        });
+      }
+      
+      // Refund the amount back to income wallet
+      const user = await User.findById(req.user._id);
+      user.wallets.income.balance += withdrawal.amount;
+      user.wallets.income.totalWithdrawn -= withdrawal.amount;
+      await user.save();
+      
+      // Update withdrawal status
+      withdrawal.status = 'cancelled';
+      withdrawal.processedAt = new Date();
+      withdrawal.notes = 'Cancelled by user';
+      await withdrawal.save();
+      
+      // Create refund transaction
+      const Transaction = require('../models/Transaction');
+      await Transaction.create({
+        userId: user._id,
+        type: 'withdrawal_cancelled',
+        category: 'income',
+        amount: withdrawal.amount,
+        description: 'Withdrawal request cancelled',
+        relatedId: withdrawal._id,
+        status: 'completed',
+      });
+      
+      res.json({
+        status: 'success',
+        message: 'Withdrawal request cancelled successfully',
+        data: {
+          newBalance: user.wallets.income.balance,
+          refundedAmount: withdrawal.amount,
+        },
+      });
+    } catch (error) {
+      console.error('Error cancelling withdrawal:', error);
+      res.status(500).json({
+        status: 'error',
+        message: 'Failed to cancel withdrawal request',
       });
     }
   },

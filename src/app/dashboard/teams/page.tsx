@@ -311,6 +311,38 @@ export default function TeamsPage() {
                   <div className="text-2xl font-bold">{teamData.stats.maxTreeDepth}</div>
                 </div>
               </div>
+
+              {/* Leadership Pool Status */}
+              <div className="bg-gradient-to-br from-purple-800 to-purple-900 rounded-lg p-6 border border-purple-500/30">
+                <div className="text-purple-300 text-sm font-semibold mb-2">💎 LEADERSHIP POOL</div>
+                <div className="text-white text-2xl font-bold mb-2">
+                  {teamData.stats.currentRank !== 'Bronze' ? `${teamData.stats.currentRank} Pool` : 'Not Qualified'}
+                </div>
+                {teamData.stats.currentRank === 'Bronze' ? (
+                  <div>
+                    <div className="text-purple-200 text-sm mb-2">
+                      Reach Silver rank to qualify!
+                    </div>
+                    <div className="text-purple-300 text-xs">
+                      Need: {(50000 - (teamData.stats.leftLegVolume + teamData.stats.rightLegVolume)).toLocaleString()} more volume
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-purple-200 text-sm">
+                      Pool Rate: {
+                        teamData.stats.currentRank === 'Silver' ? '0.5%' :
+                        teamData.stats.currentRank === 'Gold' ? '1.0%' :
+                        teamData.stats.currentRank === 'Diamond' ? '1.5%' :
+                        teamData.stats.currentRank === 'Ruby' ? '2.0%' : '0%'
+                      } of monthly deposits
+                    </div>
+                    <div className="text-green-300 text-xs mt-1">
+                      ✅ Eligible for monthly distribution
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

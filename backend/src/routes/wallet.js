@@ -14,4 +14,9 @@ router.post('/withdraw-principal', walletController.withdrawPrincipal);
 router.post('/calculate-fees', walletController.calculateFees);
 router.get('/lock-status', walletController.getLockStatus);
 
+// Withdrawal management
+router.get('/withdrawals', walletController.getWithdrawalHistory);
+router.get('/withdrawals/:requestId', walletController.getWithdrawalRequest);
+router.post('/withdrawals/:requestId/cancel', walletController.cancelWithdrawalRequest);
+
 module.exports = router;

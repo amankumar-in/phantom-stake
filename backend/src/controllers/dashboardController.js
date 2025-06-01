@@ -4,7 +4,8 @@ const dashboardController = {
   // Get dashboard overview
   getDashboard: async (req, res) => {
     try {
-      const user = await User.findById(req.user._id)
+      const userId = req.user._id;
+      const user = await User.findById(userId)
         .populate('referral.referrals.user', 'username firstName lastName')
         .populate('referral.referredBy', 'username firstName lastName');
 
@@ -18,6 +19,44 @@ const dashboardController = {
       // Check if principal wallet should be unlocked
       user.unlockPrincipalWallet();
       await user.save();
+
+      // Get current month's leadership pool data
+      let leadershipPoolData = null;
+      try {
+        const LeadershipPool = require('../models/LeadershipPool');
+        const currentPool = await LeadershipPool.getCurrentPool('I');
+        
+        if (currentPool) {
+          // Calculate current distribution
+          await currentPool.calculateDistribution();
+          
+          leadershipPoolData = {
+            totalDeposits: currentPool.totalDeposits,
+            silver: {
+              total: currentPool.pools.silver.totalAmount,
+              members: currentPool.pools.silver.qualifiedMembers,
+              perMember: currentPool.pools.silver.perMemberShare
+            },
+            gold: {
+              total: currentPool.pools.gold.totalAmount,
+              members: currentPool.pools.gold.qualifiedMembers,
+              perMember: currentPool.pools.gold.perMemberShare
+            },
+            diamond: {
+              total: currentPool.pools.diamond.totalAmount,
+              members: currentPool.pools.diamond.qualifiedMembers,
+              perMember: currentPool.pools.diamond.perMemberShare
+            },
+            ruby: {
+              total: currentPool.pools.ruby.totalAmount,
+              members: currentPool.pools.ruby.qualifiedMembers,
+              perMember: currentPool.pools.ruby.perMemberShare
+            }
+          };
+        }
+      } catch (poolError) {
+        console.error('Error fetching leadership pool:', poolError);
+      }
 
       // Calculate investment statistics
       const investmentStats = {
@@ -239,6 +278,9 @@ const dashboardController = {
 
           // Recent Activity
           recentActivity: recentTransactions,
+
+          // Leadership Pool Data
+          leadershipPool: leadershipPoolData,
         },
       });
     } catch (error) {

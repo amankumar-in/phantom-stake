@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
+import { BarChart, DollarSign, Wallet, Users, UserPlus, Trophy, CreditCard } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -15,43 +16,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  const navigation = [
-    {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: "🏠",
-      current: pathname === "/dashboard",
-    },
-    {
-      name: "Wallet",
-      href: "/dashboard/wallet",
-      icon: "💼",
-      current: pathname === "/dashboard/wallet",
-    },
-    {
-      name: "Portfolio",
-      href: "/dashboard/portfolio",
-      icon: "📊",
-      current: pathname === "/dashboard/portfolio",
-    },
-    {
-      name: "Teams",
-      href: "/dashboard/teams",
-      icon: "👥",
-      current: pathname === "/dashboard/teams",
-    },
-    {
-      name: "Referrals",
-      href: "/dashboard/referrals",
-      icon: "🔗",
-      current: pathname === "/dashboard/referrals",
-    },
-    {
-      name: "Withdraw",
-      href: "/dashboard/withdraw",
-      icon: "💸",
-      current: pathname === "/dashboard/withdraw",
-    },
+  const navItems = [
+    { icon: BarChart, label: 'Dashboard', path: '/dashboard' },
+    { icon: DollarSign, label: 'Portfolio', path: '/dashboard/portfolio' },
+    { icon: Wallet, label: 'Wallet', path: '/dashboard/wallet' },
+    { icon: Users, label: 'My Team', path: '/dashboard/teams' },
+    { icon: UserPlus, label: 'Referrals', path: '/dashboard/referrals' },
+    { icon: Trophy, label: 'Leadership Pools', path: '/dashboard/pools' },
+    { icon: CreditCard, label: 'Withdraw', path: '/dashboard/withdraw' },
   ];
 
   const handleLogout = () => {
@@ -112,23 +84,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 px-6 py-4 space-y-1">
-            {navigation.map((item) => (
+            {navItems.map((item) => (
               <motion.button
-                key={item.name}
+                key={item.label}
                 onClick={() => {
-                  router.push(item.href);
+                  router.push(item.path);
                   setSidebarOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  item.current
+                  pathname === item.path
                     ? "bg-purple-600 text-white"
                     : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ x: 5 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <span className="text-lg">{item.icon}</span>
-                <span>{item.name}</span>
+                <item.icon className="w-5 h-5" />
+                <span>{item.label}</span>
               </motion.button>
             ))}
           </nav>

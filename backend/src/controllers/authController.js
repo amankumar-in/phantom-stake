@@ -176,6 +176,7 @@ const authController = {
   login: async (req, res) => {
     try {
       const { emailOrUsername, password } = req.body;
+      console.log('LOGIN ATTEMPT:', { emailOrUsername, password });
 
       // Validate required fields
       if (!emailOrUsername || !password) {
@@ -192,8 +193,10 @@ const authController = {
           { username: emailOrUsername }
         ]
       });
+      console.log('USER FOUND:', user ? user.username : null);
 
       if (!user) {
+        console.log('LOGIN FAIL: User not found');
         return res.status(401).json({
           status: 'error',
           message: 'Invalid credentials',
@@ -202,6 +205,7 @@ const authController = {
 
       // Check if account is active
       if (!user.isActive) {
+        console.log('LOGIN FAIL: User not active');
         return res.status(401).json({
           status: 'error',
           message: 'Account has been deactivated. Please contact support.',
@@ -210,7 +214,9 @@ const authController = {
 
       // Verify password
       const isPasswordValid = await user.comparePassword(password);
+      console.log('PASSWORD VALID:', isPasswordValid);
       if (!isPasswordValid) {
+        console.log('LOGIN FAIL: Password mismatch');
         return res.status(401).json({
           status: 'error',
           message: 'Invalid credentials',

@@ -94,22 +94,41 @@ interface DashboardData {
     milestoneRewards: number;
     matchingBonus: number;
   };
+  leadershipPool?: {
+    silver?: {
+      total: number;
+      members: number;
+    };
+    gold?: {
+      total: number;
+      members: number;
+    };
+    diamond?: {
+      total: number;
+      members: number;
+    };
+    ruby?: {
+      total: number;
+      members: number;
+    };
+    totalDeposits?: number;
+  };
 }
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const { user, token } = useAuth();
   const router = useRouter();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!user || !token) {
       router.push("/login");
       return;
     }
     fetchDashboardData();
-  }, [user, token]);
+  }, [user, token, router]);
 
   const fetchDashboardData = async () => {
     try {
@@ -126,13 +145,15 @@ export default function Dashboard() {
 
       const data = await response.json();
       setDashboardData(data.data);
-    } catch (error) {
-      console.error("Dashboard fetch error:", error);
-      setError("Failed to load dashboard data");
+    } catch (err) {
+    console.error("Dashboard fetch error:", err);
     } finally {
-      setLoading(false);
+    setLoading(false);
     }
-  };
+    };
+
+// Remove unused error variables in all catch blocks
+// ... existing code ...
 
   if (loading) {
     return (
@@ -149,11 +170,10 @@ export default function Dashboard() {
     );
   }
 
-  if (error || !dashboardData) {
+  if (!dashboardData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
           <button 
             onClick={fetchDashboardData}
             className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
@@ -261,11 +281,11 @@ export default function Dashboard() {
                         } else {
                           alert('Reset failed');
                         }
-                      } catch (error) {
-                        alert('Reset error');
+                      } catch {
+                      alert('Reset error');
                       }
-                    }
-                  }}
+                      }
+                      }}
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg"
                 >
                   🗑️ Reset Fake Data
@@ -289,13 +309,40 @@ export default function Dashboard() {
                       } else {
                         alert('ROI processing failed: ' + data.message);
                       }
-                    } catch (error) {
-                      alert('ROI processing error');
+                    } catch {
+                    alert('ROI processing error');
                     }
-                  }}
+                    }}
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg"
                 >
                   💰 Process Daily ROI
+                </button>
+
+                {/* Process Leadership Pool Button (Temporary for Testing) */}
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/process-pool`, {
+                        method: 'POST',
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          'Content-Type': 'application/json',
+                        },
+                      });
+                      const data = await response.json();
+                      if (response.ok) {
+                        alert(`Leadership pool processed! ${JSON.stringify(data.data, null, 2)}`);
+                        fetchDashboardData();
+                      } else {
+                        alert('Failed to process leadership pool');
+                      }
+                    } catch {
+                    alert('Error processing leadership pool');
+                    }
+                    }}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors text-sm"
+                >
+                  Process Leadership Pool
                 </button>
               </div>
             </div>
@@ -486,13 +533,13 @@ export default function Dashboard() {
                         🚀 COMPOUNDING ACTIVE: {(dashboardData.wallets.income.compoundingRate * 100).toFixed(1)}% daily
                       </div>
                       <div className="text-purple-200 text-xs mt-1">
-                        Your income is growing faster! Don't withdraw to keep compounding.
+                      Your income is growing faster! Don&apos;t withdraw to keep compounding.
                       </div>
                     </div>
                   ) : (
                     <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-4">
                       <div className="text-blue-300 text-sm font-semibold">
-                        💡 TIP: Don't withdraw for 7 days to activate 1.0% daily compounding
+                        💡 TIP: Don&apos;t withdraw for 7 days to activate 1.0% daily compounding
                       </div>
                     </div>
                   )}
@@ -711,6 +758,175 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
+          {/* Leadership Pool Status */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.55 }}
+            className="mb-8"
+          >
+            <h2 className="text-2xl font-bold text-white mb-6">💎 Leadership Pool Status</h2>
+            
+            <div className="bg-gray-900/50 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-6">
+              {/* User's Eligibility */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-white">Your Pool Eligibility</h3>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    dashboardData.team.rank !== 'Bronze' 
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                      : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                  }`}>
+                    {dashboardData.team.rank !== 'Bronze' ? `${dashboardData.team.rank} Pool Qualified` : 'Rank Up to Qualify'}
+                  </span>
+                </div>
+                
+                {dashboardData.team.rank === 'Bronze' ? (
+                  <div className="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-4">
+                    <div className="text-yellow-300 text-sm font-semibold mb-2">
+                      🎯 Reach Silver Rank to Join Leadership Pools!
+                    </div>
+                    <div className="text-yellow-200 text-xs">
+                      Requirements: 50,000 USDT team volume + 1,000 USDT personal stake
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-purple-900/30 border border-purple-500/30 rounded-lg p-4">
+                    <div className="text-purple-300 text-sm font-semibold mb-2">
+                      ✅ You qualify for the {dashboardData.team.rank} Leadership Pool!
+                    </div>
+                    <div className="text-purple-200 text-xs">
+                      Distributed monthly on the 1st • Pro-rata share based on qualified members
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Current Month's Pools */}
+              <div className="space-y-4">
+                <h4 className="text-white font-semibold">Current Month Pool Status</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Silver Pool */}
+                  <div className={`rounded-lg p-4 ${
+                    dashboardData.team.rank === 'Silver' || dashboardData.team.rank === 'Gold' || 
+                    dashboardData.team.rank === 'Diamond' || dashboardData.team.rank === 'Ruby'
+                      ? 'bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-500/30' 
+                      : 'bg-gray-800/50 opacity-60'
+                  }`}>
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🥈</div>
+                      <div className="text-gray-300 text-sm font-semibold">Silver Pool</div>
+                      <div className="text-xs text-gray-400 mb-2">0.5% of deposits</div>
+                      <div className="text-lg font-bold text-white">
+                        ${dashboardData.leadershipPool?.silver?.total || '---'}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        {dashboardData.leadershipPool?.silver?.members || 0} members
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gold Pool */}
+                  <div className={`rounded-lg p-4 ${
+                    dashboardData.team.rank === 'Gold' || dashboardData.team.rank === 'Diamond' || 
+                    dashboardData.team.rank === 'Ruby'
+                      ? 'bg-gradient-to-br from-yellow-700 to-yellow-800 border border-yellow-500/30' 
+                      : 'bg-gray-800/50 opacity-60'
+                  }`}>
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🥇</div>
+                      <div className="text-yellow-300 text-sm font-semibold">Gold Pool</div>
+                      <div className="text-xs text-yellow-400/80 mb-2">1.0% of deposits</div>
+                      <div className="text-lg font-bold text-white">
+                        ${dashboardData.leadershipPool?.gold?.total || '---'}
+                      </div>
+                      <div className="text-xs text-yellow-400/80 mt-1">
+                        {dashboardData.leadershipPool?.gold?.members || 0} members
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Diamond Pool */}
+                  <div className={`rounded-lg p-4 ${
+                    dashboardData.team.rank === 'Diamond' || dashboardData.team.rank === 'Ruby'
+                      ? 'bg-gradient-to-br from-blue-700 to-blue-800 border border-blue-500/30' 
+                      : 'bg-gray-800/50 opacity-60'
+                  }`}>
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">💎</div>
+                      <div className="text-blue-300 text-sm font-semibold">Diamond Pool</div>
+                      <div className="text-xs text-blue-400/80 mb-2">1.5% of deposits</div>
+                      <div className="text-lg font-bold text-white">
+                        ${dashboardData.leadershipPool?.diamond?.total || '---'}
+                      </div>
+                      <div className="text-xs text-blue-400/80 mt-1">
+                        {dashboardData.leadershipPool?.diamond?.members || 0} members
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ruby Pool */}
+                  <div className={`rounded-lg p-4 ${
+                    dashboardData.team.rank === 'Ruby'
+                      ? 'bg-gradient-to-br from-red-700 to-red-800 border border-red-500/30' 
+                      : 'bg-gray-800/50 opacity-60'
+                  }`}>
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">💎</div>
+                      <div className="text-red-300 text-sm font-semibold">Ruby Pool</div>
+                      <div className="text-xs text-red-400/80 mb-2">2.0% of deposits</div>
+                      <div className="text-lg font-bold text-white">
+                        ${dashboardData.leadershipPool?.ruby?.total || '---'}
+                      </div>
+                      <div className="text-xs text-red-400/80 mt-1">
+                        {dashboardData.leadershipPool?.ruby?.members || 0} members
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Your Estimated Share */}
+                {dashboardData.team.rank !== 'Bronze' && (
+                  <div className="mt-4 bg-green-900/30 border border-green-500/30 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-green-300 text-sm font-semibold">
+                          Your Estimated Share This Month
+                        </div>
+                        <div className="text-green-200 text-xs mt-1">
+                          Based on {dashboardData.leadershipPool?.[dashboardData.team.rank.toLowerCase()]?.members || 1} qualified {dashboardData.team.rank} members
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold text-white">
+                        ${(() => {
+  const pool = dashboardData.leadershipPool && typeof dashboardData.team.rank === 'string'
+    ? dashboardData.leadershipPool[dashboardData.team.rank.toLowerCase() as keyof typeof dashboardData.leadershipPool]
+    : undefined;
+  return ((pool && pool.total) || 0) / ((pool && pool.members) || 1);
+})().toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Distribution Info */}
+                <div className="mt-4 text-center text-gray-400 text-sm">
+                  <div>Total Monthly Deposits: ${dashboardData.leadershipPool?.totalDeposits?.toLocaleString() || '0'}</div>
+                  <div className="text-xs mt-1">Pools distribute automatically on the 1st of each month</div>
+                  
+                  {/* View History Link */}
+                  <button 
+                    onClick={() => router.push('/dashboard/pools')}
+                    className="mt-3 text-purple-400 hover:text-purple-300 text-sm font-semibold underline"
+                  >
+                    View Pool History →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Quick Actions Grid */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -797,7 +1013,7 @@ export default function Dashboard() {
                   <div className="flex items-start space-x-3">
                     <span className="text-purple-400">🚀</span>
                     <div>
-                      <strong className="text-white">Compounding:</strong> If you don't withdraw from your Income Wallet for 7 days, it starts earning 1.0% daily instead of 0.75%!
+                      <strong className="text-white">Compounding:</strong> If you don&apos;t withdraw from your Income Wallet for 7 days, it starts earning 1.0% daily instead of 0.75%!
                     </div>
                   </div>
                 </div>

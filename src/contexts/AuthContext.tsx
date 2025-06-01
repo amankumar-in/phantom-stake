@@ -52,7 +52,7 @@ interface RegisterData {
 const initialState: AuthState = {
   user: null,
   token: null,
-  loading: false,
+  loading: true,
   error: null,
 };
 
@@ -123,7 +123,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to parse stored user data' });
       }
+    } else {
+      // No stored auth, set loading to false
+      dispatch({ type: 'AUTH_FAILURE', payload: '' });
     }
   }, []);
 

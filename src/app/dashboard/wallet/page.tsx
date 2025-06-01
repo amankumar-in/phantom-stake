@@ -23,6 +23,10 @@ interface WalletData {
     totalEarned: number;
     totalWithdrawn: number;
     todayROI: number;
+    compounding?: {
+      active: boolean;
+    };
+    daysWithoutWithdrawal?: number;
   };
   daysActive: number;
   transactions: Transaction[];
@@ -37,6 +41,7 @@ export default function WalletPage() {
   const [depositLoading, setDepositLoading] = useState(false);
   const [depositError, setDepositError] = useState("");
   const [depositSuccess, setDepositSuccess] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   useEffect(() => {
     fetchWalletData();
@@ -168,39 +173,105 @@ export default function WalletPage() {
             </div>
 
             {/* Income Wallet */}
-            <div className="bg-gray-900/50 border border-green-500/30 rounded-xl p-6">
+            <div className="bg-gradient-to-br from-blue-800 to-blue-900 rounded-lg p-6 border border-blue-500/30">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">Income Wallet</h2>
-                <div className="px-3 py-1 rounded-full text-xs font-semibold bg-green-900/50 border border-green-500/50 text-green-300">
-                  ✅ WITHDRAWABLE
-                </div>
+                <h3 className="text-xl font-bold text-white">Income Wallet</h3>
+                <span className="text-3xl">💰</span>
               </div>
-
+              
               <div className="space-y-4">
                 <div>
-                  <div className="text-2xl font-bold text-white">
-                    ${walletData?.income?.balance?.toLocaleString() || '0.00'} USDT
-                  </div>
-                  <div className="text-sm text-gray-400">Your daily earnings & bonuses</div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-800/50 rounded-lg p-3">
-                    <div className="text-sm text-gray-400">Today's ROI</div>
-                    <div className="text-lg font-semibold text-green-400">
-                      +${walletData?.income?.todayROI?.toFixed(2) || '0.00'}
-                    </div>
-                  </div>
-                  <div className="bg-gray-800/50 rounded-lg p-3">
-                    <div className="text-sm text-gray-400">Total Earned</div>
-                    <div className="text-lg font-semibold text-green-400">
-                      ${walletData?.income?.totalEarned?.toLocaleString() || '0.00'}
-                    </div>
+                  <div className="text-blue-200 text-sm">Available Balance</div>
+                  <div className="text-3xl font-bold text-white">
+                    ${walletData?.income?.balance.toLocaleString()} USDT
                   </div>
                 </div>
-
-                <button className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors">
-                  💸 Withdraw Income (Min: 1,000 USDT)
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <div className="text-blue-200">Total Earned</div>
+                    <div className="text-white font-semibold">
+                      ${walletData?.income?.totalEarned.toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-blue-200">Total Withdrawn</div>
+                    <div className="text-white font-semibold">
+                      ${walletData?.income?.totalWithdrawn.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Today's ROI */}
+                <div className="border-t border-blue-400/30 pt-4">
+                  <div className="text-blue-200 text-sm">Today's ROI</div>
+                  <div className="text-xl font-bold text-green-400">
+                    +${walletData?.income?.todayROI.toFixed(2)} USDT
+                  </div>
+                </div>
+                
+                {/* Compounding Status */}
+                <div className="border-t border-blue-400/30 pt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-blue-200 text-sm">Compounding Status</div>
+                    {walletData?.income?.compounding?.active ? (
+                      <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs font-semibold">
+                        ACTIVE
+                      </span>
+                    ) : (
+                      <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-semibold">
+                        INACTIVE
+                      </span>
+                    )}
+                  </div>
+                  
+                  {walletData?.income?.compounding?.active ? (
+                    <div className="bg-green-900/30 border border-green-500/30 rounded p-3">
+                      <div className="text-green-300 text-sm font-semibold mb-1">
+                        🚀 Compounding Active at 1.0% Daily!
+                      </div>
+                      <div className="text-green-200 text-xs">
+                        Your entire income wallet is growing at 1.0% per day
+                      </div>
+                      <div className="text-yellow-300 text-xs mt-2">
+                        ⚠️ Any withdrawal will reset compounding
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-blue-200">Days Without Withdrawal</span>
+                        <span className="text-white font-semibold">
+                          {walletData?.income?.daysWithoutWithdrawal || 0} / 7 days
+                        </span>
+                      </div>
+                      
+                      {walletData?.income?.balance >= 50 ? (
+                        <div className="bg-blue-900/50 rounded p-2">
+                          <div className="text-blue-300 text-xs">
+                            {7 - (walletData?.income?.daysWithoutWithdrawal || 0) > 0 ? (
+                              <>Hold for {7 - (walletData?.income?.daysWithoutWithdrawal || 0)} more days to activate 1.0% daily compounding!</>
+                            ) : (
+                              <>Compounding will activate on your next daily processing!</>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-yellow-900/50 rounded p-2">
+                          <div className="text-yellow-300 text-xs">
+                            Minimum 50 USDT required for compounding (current: ${walletData?.income?.balance.toFixed(2)})
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <button
+                  onClick={() => setShowWithdrawModal(true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Withdraw Funds
                 </button>
               </div>
             </div>
@@ -236,10 +307,24 @@ export default function WalletPage() {
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="text-2xl">
-                      {tx.type === 'deposit' ? '💰' : tx.type === 'roi' ? '📈' : '💸'}
+                      {tx.type === 'deposit' ? '💰' : 
+                       tx.type === 'roi' ? '📈' : 
+                       tx.type === 'leadership_pool' ? '💎' :
+                       tx.type === 'compounding' ? '🚀' :
+                       tx.type === 'matching_bonus' ? '🤝' :
+                       tx.type === 'level_override' ? '🌳' :
+                       tx.type === 'referral_bonus' ? '👥' :
+                       '💸'}
                     </div>
                     <div>
-                      <div className="text-white font-semibold capitalize">{tx.type}</div>
+                      <div className="text-white font-semibold capitalize">
+                        {tx.type === 'roi' ? 'Daily ROI' :
+                         tx.type === 'leadership_pool' ? 'Leadership Pool' :
+                         tx.type === 'matching_bonus' ? 'Team Balance Bonus' :
+                         tx.type === 'level_override' ? 'Network Earnings' :
+                         tx.type === 'referral_bonus' ? 'Referral Bonus' :
+                         tx.type.replace(/_/g, ' ')}
+                      </div>
                       <div className="text-gray-400 text-sm">{new Date(tx.date).toLocaleDateString()}</div>
                     </div>
                   </div>

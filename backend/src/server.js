@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -11,7 +12,9 @@ const dashboardRoutes = require('./routes/dashboard');
 const walletRoutes = require('./routes/wallet');
 const teamRoutes = require('./routes/team');
 const stakingRoutes = require('./routes/staking');
+const adminRoutes = require('./routes/adminRoutes');
 const { processROI } = require('./jobs/processROI');
+const { processLeadershipPools } = require('./jobs/processLeadershipPools');
 
 const app = express();
 
@@ -53,6 +56,8 @@ mongoose.connect(process.env.MONGODB_URI, {
   
   // Initialize cron jobs after database connection
   processROI();
+  processLeadershipPools();
+  console.log('✅ Daily processing jobs initialized');
 })
 .catch((error) => {
   console.error('❌ MongoDB connection error:', error);
@@ -65,6 +70,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/staking', stakingRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -85,7 +91,8 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((error, req, res, next) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((error, req, res, _next) => {
   console.error('❌ Server Error:', error);
   
   res.status(error.status || 500).json({

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -16,8 +16,21 @@ export default function Login() {
   });
   const [showPassword, setShowPassword] = useState(false);
   
-  const { login, loading, error, clearError } = useAuth();
+  const { login, loading, error, clearError, user } = useAuth();
   const router = useRouter();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      // Check if user is admin
+      const adminUsernames = ['admin', 'amankumar', 'phantom_admin'];
+      if (adminUsernames.includes(user.username.toLowerCase())) {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [user, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
