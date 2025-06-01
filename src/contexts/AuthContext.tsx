@@ -167,12 +167,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return data;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ API Call Error:', error);
       if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new Error('Unable to connect to server. Please check if the backend is running on port 5100.');
       }
-      throw error;
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('An unknown error occurred');
     }
   };
 
