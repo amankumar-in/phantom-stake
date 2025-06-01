@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { motion } from "framer-motion";
-import { Trophy, TrendingUp, Users, Calendar, Award } from "lucide-react";
 
 interface PoolData {
   currentPool: {
@@ -37,11 +36,7 @@ export default function PoolsPage() {
   const [poolData, setPoolData] = useState<PoolData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchPoolData();
-  }, []);
-
-  const fetchPoolData = async () => {
+  const fetchPoolData = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard/pools`, {
         headers: {
@@ -82,7 +77,11 @@ export default function PoolsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchPoolData();
+  }, [fetchPoolData]);
 
   if (loading) {
     return (

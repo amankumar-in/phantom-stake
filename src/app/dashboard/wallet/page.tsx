@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { AlertCircle, CheckCircle } from "lucide-react";
@@ -33,7 +33,7 @@ interface WalletData {
 }
 
 export default function WalletPage() {
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -41,13 +41,8 @@ export default function WalletPage() {
   const [depositLoading, setDepositLoading] = useState(false);
   const [depositError, setDepositError] = useState("");
   const [depositSuccess, setDepositSuccess] = useState(false);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
-  useEffect(() => {
-    fetchWalletData();
-  }, []);
-
-  const fetchWalletData = async () => {
+  const fetchWalletData = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/wallet/details`, {
         headers: {
@@ -62,7 +57,11 @@ export default function WalletPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchWalletData();
+  }, [fetchWalletData]);
 
   const handleDeposit = async () => {
     const amount = parseFloat(depositAmount);
@@ -183,7 +182,7 @@ export default function WalletPage() {
                 <div>
                   <div className="text-blue-200 text-sm">Available Balance</div>
                   <div className="text-3xl font-bold text-white">
-                    ${walletData?.income?.balance.toLocaleString()} USDT
+                    ${(walletData?.income?.balance ?? 0).toLocaleString()} USDT
                   </div>
                 </div>
                 
@@ -259,20 +258,13 @@ export default function WalletPage() {
                       ) : (
                         <div className="bg-yellow-900/50 rounded p-2">
                           <div className="text-yellow-300 text-xs">
-                            Minimum 50 USDT required for compounding (current: ${walletData?.income?.balance.toFixed(2)})
+                            Minimum 50 USDT required for compounding (current: ${(walletData?.income?.balance ?? 0).toFixed(2)})
                           </div>
                         </div>
                       )}
                     </div>
                   )}
                 </div>
-                
-                <button
-                  onClick={() => setShowWithdrawModal(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Withdraw Funds
-                </button>
               </div>
             </div>
           </div>
@@ -282,7 +274,7 @@ export default function WalletPage() {
             <div className="bg-gray-900/50 border border-purple-500/30 rounded-xl p-6">
               <div className="text-purple-400 text-sm font-semibold mb-2">Portfolio Value</div>
               <div className="text-2xl font-bold text-white">
-                ${((walletData?.principal?.balance || 0) + (walletData?.income?.balance || 0)).toLocaleString()}
+                ${((walletData?.principal?.balance || 0) + (walletData?.income?.balance ?? 0)).toLocaleString()}
               </div>
             </div>
 

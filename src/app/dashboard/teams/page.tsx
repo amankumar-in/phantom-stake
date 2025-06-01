@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import BinaryTreeVisualization from "@/components/dashboard/BinaryTreeVisualization";
@@ -94,11 +94,7 @@ export default function TeamsPage() {
   const [sortBy, setSortBy] = useState<'date' | 'volume' | 'team' | 'earnings' | 'referralLevel'>('date');
   const [treeData, setTreeData] = useState<TreeStructure | null>(null);
 
-  useEffect(() => {
-    fetchTeamData();
-  }, []);
-
-  const fetchTeamData = async () => {
+  const fetchTeamData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/team/overview`, {
@@ -154,9 +150,9 @@ export default function TeamsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const fetchTreeData = async () => {
+  const fetchTreeData = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/team/tree?levels=10`, {
         headers: {
@@ -174,9 +170,9 @@ export default function TeamsPage() {
     } catch (error) {
       console.error('Error fetching tree data:', error);
     }
-  };
+  }, [token]);
 
-  const fetchTeamMembers = async () => {
+  const fetchTeamMembers = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams({
         level: selectedLevel.toString(),
@@ -205,19 +201,23 @@ export default function TeamsPage() {
     } catch (error) {
       console.error('Error fetching team members:', error);
     }
-  };
+  }, [token, selectedLevel, sortBy, searchTerm, teamData]);
+
+  useEffect(() => {
+    fetchTeamData();
+  }, [fetchTeamData]);
 
   useEffect(() => {
     if (currentView === 'members' && teamData) {
       fetchTeamMembers();
     }
-  }, [currentView, selectedLevel, sortBy, searchTerm]);
+  }, [currentView, selectedLevel, sortBy, searchTerm, fetchTeamMembers, teamData]);
 
   useEffect(() => {
     if (currentView === 'tree' && !treeData) {
       fetchTreeData();
     }
-  }, [currentView]);
+  }, [currentView, fetchTreeData, treeData]);
 
   const calculateMatchingRate = () => {
     const rank = teamData?.stats?.currentRank || 'Bronze';

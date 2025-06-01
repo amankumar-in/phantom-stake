@@ -15,13 +15,6 @@ export default function Calculator() {
   const totalReturn = dailyReturn * timeframe;
   const totalValue = investmentAmount + totalReturn;
 
-  const calculateReturns = () => {
-    if (investmentAmount < 500) {
-      alert('Minimum investment is $500');
-      return;
-    }
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 py-12">
       {/* Background Effects */}
@@ -71,7 +64,7 @@ export default function Calculator() {
             <div className="bg-black/20 rounded-lg p-6 text-center border border-purple-500/30">
               <div className="text-4xl mb-4">🏆</div>
               <h3 className="text-xl font-bold text-purple-300 mb-3">Team Bonuses</h3>
-              <p className="text-gray-300 text-lg">Earn extra money from your team's success</p>
+              <p className="text-gray-300 text-lg">Earn extra money from your team&apos;s success</p>
               <p className="text-purple-400 text-sm mt-2">Build a team → Earn 8-12% monthly bonuses</p>
             </div>
           </div>

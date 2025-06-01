@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 
 interface User {
@@ -38,9 +38,7 @@ export default function AdminUsers() {
 
   const API = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
 
-  useEffect(() => { fetchUsers(); }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`${API}/admin/users`, {
@@ -48,12 +46,14 @@ export default function AdminUsers() {
       });
       const data = await res.json();
       setUsers(data.data || []);
-    } catch (e) {
+    } catch {
       setUsers([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [API, token]);
+
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   // Add User
   const handleAdd = async () => {
@@ -268,7 +268,7 @@ export default function AdminUsers() {
       {showInvest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-900 p-8 rounded-lg w-full max-w-2xl">
-            <h2 className="text-xl font-bold text-white mb-4">{showInvest.username}'s Investments & Earnings</h2>
+            <h2 className="text-xl font-bold text-white mb-4">{showInvest.username}&apos;s Investments & Earnings</h2>
             <div className="mb-4">
               <h3 className="text-lg text-white font-semibold mb-2">Investments</h3>
               <pre className="bg-gray-800 text-white p-2 rounded overflow-x-auto max-h-40">{JSON.stringify(investments, null, 2)}</pre>

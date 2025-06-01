@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
@@ -46,11 +46,7 @@ export default function InvestPage() {
   const [investData, setInvestData] = useState<InvestData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchInvestData();
-  }, []);
-
-  const fetchInvestData = async () => {
+  const fetchInvestData = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/staking/overview`, {
         headers: {
@@ -65,7 +61,11 @@ export default function InvestPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchInvestData();
+  }, []);
 
   if (loading) {
     return (

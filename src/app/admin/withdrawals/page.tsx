@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
 import { Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
@@ -40,11 +40,7 @@ export default function AdminWithdrawals() {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterType>('pending');
 
-  useEffect(() => {
-    fetchWithdrawals();
-  }, []);
-
-  const fetchWithdrawals = async () => {
+  const fetchWithdrawals = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/withdrawals`, {
         headers: {
@@ -62,7 +58,11 @@ export default function AdminWithdrawals() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchWithdrawals();
+  }, [fetchWithdrawals]);
 
   const handleApprove = async (requestId: string) => {
     if (!confirm('Are you sure you want to approve this withdrawal?')) return;
