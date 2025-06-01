@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { TextAnimate } from "@/components/ui/text-animate";
 import { PulsatingButton } from "@/components/ui/pulsating-button";
@@ -121,16 +121,7 @@ export default function Dashboard() {
   const { user, token } = useAuth();
   const router = useRouter();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (!user || !token) {
-      router.push("/login");
-      return;
-    }
-    fetchDashboardData();
-  }, [user, token, router]);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard`, {
         headers: {
@@ -146,14 +137,19 @@ export default function Dashboard() {
       const data = await response.json();
       setDashboardData(data.data);
     } catch (err) {
-    console.error("Dashboard fetch error:", err);
+      console.error("Dashboard fetch error:", err);
     } finally {
-    setLoading(false);
+      setLoading(false);
     }
-    };
+  }, [token]);
 
-// Remove unused error variables in all catch blocks
-// ... existing code ...
+  useEffect(() => {
+    if (!user || !token) {
+      router.push("/login");
+      return;
+    }
+    fetchDashboardData();
+  }, [user, token, router]);
 
   if (loading) {
     return (
@@ -210,6 +206,22 @@ export default function Dashboard() {
   };
 
   const daysUntilUnlock = calculateDaysUntilUnlock();
+
+  const getPoolForRank = (rank: string) => {
+    if (!dashboardData.leadershipPool) return undefined;
+    switch (rank.toLowerCase()) {
+      case 'silver':
+        return dashboardData.leadershipPool.silver;
+      case 'gold':
+        return dashboardData.leadershipPool.gold;
+      case 'diamond':
+        return dashboardData.leadershipPool.diamond;
+      case 'ruby':
+        return dashboardData.leadershipPool.ruby;
+      default:
+        return undefined;
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -895,16 +907,14 @@ export default function Dashboard() {
                           Your Estimated Share This Month
                         </div>
                         <div className="text-green-200 text-xs mt-1">
-                          Based on {dashboardData.leadershipPool?.[dashboardData.team.rank.toLowerCase()]?.members || 1} qualified {dashboardData.team.rank} members
+                          Based on {getPoolForRank(dashboardData.team.rank)?.members || 1} qualified {dashboardData.team.rank} members
                         </div>
                       </div>
                       <div className="text-2xl font-bold text-white">
                         ${(() => {
-  const pool = dashboardData.leadershipPool && typeof dashboardData.team.rank === 'string'
-    ? dashboardData.leadershipPool[dashboardData.team.rank.toLowerCase() as keyof typeof dashboardData.leadershipPool]
-    : undefined;
-  return ((pool && pool.total) || 0) / ((pool && pool.members) || 1);
-})().toFixed(2)}
+                          const pool = getPoolForRank(dashboardData.team.rank);
+                          return ((pool && pool.total) || 0) / ((pool && pool.members) || 1);
+                        })().toFixed(2)}
                       </div>
                     </div>
                   </div>

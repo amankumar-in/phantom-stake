@@ -11,11 +11,19 @@ interface User {
   isBlocked: boolean;
   canDeposit: boolean;
   canWithdraw: boolean;
-  investments?: any[];
+  investments?: unknown[];
   earnings?: number;
 }
 
-const initialForm = { username: '', email: '', password: '', isAdmin: false };
+// Define a type for the form state
+interface FormState {
+  username: string;
+  email: string;
+  password?: string;
+  isAdmin: boolean;
+}
+
+const initialForm: FormState = { username: '', email: '', password: '', isAdmin: false };
 
 export default function AdminUsers() {
   const { token } = useAuth();
@@ -24,7 +32,7 @@ export default function AdminUsers() {
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState<User | null>(null);
   const [showReset, setShowReset] = useState<User | null>(null);
-  const [form, setForm] = useState<any>(initialForm);
+  const [form, setForm] = useState<FormState>(initialForm);
   const [pw, setPw] = useState('');
   const [modalError, setModalError] = useState('');
 
@@ -133,7 +141,7 @@ export default function AdminUsers() {
 
   // Investments/Earnings
   const [showInvest, setShowInvest] = useState<User | null>(null);
-  const [investments, setInvestments] = useState<any[]>([]);
+  const [investments, setInvestments] = useState<unknown[]>([]);
   const [earnings, setEarnings] = useState<number>(0);
   const fetchInvestments = async (user: User) => {
     setShowInvest(user); setInvestments([]); setEarnings(0);

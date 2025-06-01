@@ -40,7 +40,6 @@ export default function AdminWithdrawals() {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterType>('pending');
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchWithdrawals();
   }, []);
