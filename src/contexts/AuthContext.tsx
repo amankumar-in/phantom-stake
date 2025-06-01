@@ -120,7 +120,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const user = JSON.parse(userData);
         dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
-      } catch (_error) {
+      } catch (error) {
+        console.error('Failed to parse stored user data:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to parse stored user data' });
@@ -167,13 +168,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       return data;
-    } catch (_error: unknown) {
-      console.error('❌ API Call Error:', _error);
-      if (_error instanceof TypeError && _error.message.includes('fetch')) {
+    } catch (error: unknown) {
+      console.error('❌ API Call Error:', error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new Error('Unable to connect to server. Please check if the backend is running on port 5100.');
       }
-      if (_error instanceof Error) {
-        throw _error;
+      if (error instanceof Error) {
+        throw error;
       }
       throw new Error('An unknown error occurred');
     }
